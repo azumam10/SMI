@@ -1,14 +1,8 @@
-# Docker
-docker-compose.yml
-docker-compose.override.yml
-
-# Database folders
-db/
-db_replica/
-
-# Environment
-.env
-
-
-# VS Code
-.vscode/
+db/data/*
+!db/data/.gitkeep
+ 
+db_replica/data/*
+!db_replica/data/.gitkeep
+ 
+redis/data/*
+!redis/data/.gitkeep
