@@ -1,0 +1,141 @@
+services:
+
+  # ──────────────────────────────────────────────────────────
+  # PHP-FPM (Laravel App)
+  #
+  # CATATAN: nama service diubah dari 'umamis' -> 'umamis_php'
+  # agar tidak ambigu dengan COMPOSE_PROJECT_NAME=umamis dan
+  # agar jelas perannya saat dirujuk oleh nginx & service lain.
+  # ──────────────────────────────────────────────────────────
+  umamis_php:
+    build: ./php
+    image: umamis_php:latest
+    container_name: umamis_php
+    hostname: "umamis_php"
+    restart: unless-stopped
+    environment:
+      DB_HOST: umamis_db_master
+      DB_PORT: 3306
+      DB_REPLICA_HOST: umamis_db_replica
+      DB_REPLICA_PORT: 3306
+      REDIS_HOST: umamis_redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./src:/var/www/html
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+    working_dir: /var/www/html
+    networks:
+      - umamis_net
+    depends_on:
+      umamis_db_master:
+        condition: service_healthy
+      umamis_redis:
+        condition: service_healthy
+
+  # ──────────────────────────────────────────────────────────
+  # Nginx
+  # ──────────────────────────────────────────────────────────
+  umamis_nginx:
+    build: ./nginx
+    image: umamis_nginx:latest
+    container_name: umamis_nginx
+    hostname: "umamis_nginx"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - umamis_net
+    depends_on:
+      - umamis_php
+
+  # ──────────────────────────────────────────────────────────
+  # MySQL MASTER (write)
+  #
+  # CATATAN: diganti dari mariadb:10.2 -> mysql:8.0 sesuai
+  # keputusan, karena virtualAs() di migrasi employees pakai
+  # sintaks MySQL murni dan replikasi GTID lebih konsisten di MySQL 8.
+  # ──────────────────────────────────────────────────────────
+  umamis_db_master:
+    image: mysql:8.0
+    container_name: umamis_db_master
+    hostname: "umamis_db_master"
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "13306:3306"
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/conf.d:/etc/mysql/conf.d:ro
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      MYSQL_DATABASE: umamis_hris
+      MYSQL_USER: djambred
+      MYSQL_PASSWORD: p455w0rd1!.
+      MYSQL_ROOT_PASSWORD: p455w0rd
+      TZ: Asia/Jakarta
+    networks:
+      - umamis_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pp455w0rd"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # ──────────────────────────────────────────────────────────
+  # MySQL REPLICA (read)
+  # ──────────────────────────────────────────────────────────
+  umamis_db_replica:
+    image: mysql:8.0
+    container_name: umamis_db_replica
+    hostname: "umamis_db_replica"
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "13307:3306"
+    volumes:
+      - ./db_replica/data:/var/lib/mysql
+      - ./db_replica/conf.d:/etc/mysql/conf.d:ro
+      - ./db_replica/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
+    environment:
+      MYSQL_DATABASE: umamis_hris
+      MYSQL_USER: djambred
+      MYSQL_PASSWORD: p455w0rd1!.
+      MYSQL_ROOT_PASSWORD: p455w0rd
+      TZ: Asia/Jakarta
+    networks:
+      - umamis_net
+    depends_on:
+      umamis_db_master:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pp455w0rd"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  # ──────────────────────────────────────────────────────────
+  # Redis (cache + queue)
+  # ──────────────────────────────────────────────────────────
+  umamis_redis:
+    image: redis:7-alpine
+    container_name: umamis_redis
+    hostname: "umamis_redis"
+    restart: unless-stopped
+    ports:
+      - "16379:6379"
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - umamis_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  umamis_net:
+    driver: bridge
