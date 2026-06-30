@@ -29,6 +29,7 @@ final class DatabaseSeeder extends Seeder
             PositionSeeder::class,
             SectionSeeder::class,
             EmployeeSeeder::class,
+            LeaveTypeSeeder::class,
         ]);
     }
 }

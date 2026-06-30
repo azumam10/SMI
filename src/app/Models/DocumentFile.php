@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+
 
 class DocumentFile extends Model
 {
@@ -52,12 +54,32 @@ class DocumentFile extends Model
         return $this->mime_type === 'application/pdf';
     }
 
+    public function uploader(): BelongsTo
+{
+    return $this->belongsTo(User::class, 'uploaded_by');
+}
+
+public function getUploaderNameAttribute(): string
+{
+    return $this->uploader?->name ?? '-';
+}
+
+public function scopeOrdered($query)
+{
+    return $query->orderBy('sort_order');
+}
+
     // Hapus file fisik saat record dihapus
-    protected static function boot(): void
-    {
-        parent::boot();
-        static::deleting(function (DocumentFile $file) {
+    protected static function booted(): void
+{
+    static::deleting(function (DocumentFile $file) {
+        if (
+            $file->disk &&
+            $file->path &&
+            Storage::disk($file->disk)->exists($file->path)
+        ) {
             Storage::disk($file->disk)->delete($file->path);
-        });
-    }
+        }
+    });
+}
 }

@@ -15,36 +15,58 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-        // ── MySQL (hanya master, tanpa read/write splitting) ──────
+        // ── MySQL Master-Replica (read/write splitting) ───────────────
+        //
+        // 'write' → umamis_db_master : INSERT, UPDATE, DELETE, DDL
+        // 'read'  → umamis_db_replica: SELECT (dashboard, laporan, KPI)
+        // 'sticky'= true: jika sudah write di request ini, baca dari
+        //           master supaya tidak kena replication lag
+        // ─────────────────────────────────────────────────────────────
         'mysql' => [
-            'driver'   => 'mysql',
-            'url'      => env('DB_URL'),
-            'host'     => env('DB_HOST', 'umamis_db_master'),    // selalu ke master
-            'port'     => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'umamis_hris'),
-            'username' => env('DB_USERNAME', 'djambred'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset'   => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
+            'driver' => 'mysql',
+            'url'    => env('DB_URL'),
+
+            'write' => [
+                'host'     => env('DB_HOST', 'umamis_db_master'),
+                'port'     => env('DB_PORT', '3306'),
+                'username' => env('DB_USERNAME', 'djambred'),
+                'password' => env('DB_PASSWORD', ''),
+            ],
+
+            'read' => [
+                'host'     => env('DB_REPLICA_HOST', 'umamis_db_replica'),
+                'port'     => env('DB_REPLICA_PORT', '3306'),
+                'username' => env('DB_USERNAME', 'djambred'),
+                'password' => env('DB_PASSWORD', ''),
+            ],
+
+            'sticky'    => true,
+            'database'  => env('DB_DATABASE', 'umamis_hris'),
             'prefix'    => '',
             'prefix_indexes' => true,
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
             'strict'    => true,
             'engine'    => 'InnoDB',
         ],
 
-        // ── Koneksi replica (tidak dipakai, dikomentari) ──────────
-        // 'mysql_replica' => [
-        //     'driver'    => 'mysql',
-        //     'host'      => env('DB_REPLICA_HOST', 'umamis_db_replica'),
-        //     'port'      => env('DB_REPLICA_PORT', '3306'),
-        //     'database'  => env('DB_DATABASE', 'umamis_hris'),
-        //     'username'  => env('DB_USERNAME', 'djambred'),
-        //     'password'  => env('DB_PASSWORD', ''),
-        //     'charset'   => 'utf8mb4',
-        //     'collation' => 'utf8mb4_unicode_ci',
-        //     'strict'    => true,
-        //     'engine'    => 'InnoDB',
-        // ],
+        // ── Koneksi eksplisit ke replica ──────────────────────────────
+        // Untuk query laporan berat / analytics, pakai:
+        //   Employee::onReplica()->get();
+        //   DB::connection('mysql_replica')->table(...)->get();
+        // ─────────────────────────────────────────────────────────────
+        'mysql_replica' => [
+            'driver'    => 'mysql',
+            'host'      => env('DB_REPLICA_HOST', 'umamis_db_replica'),
+            'port'      => env('DB_REPLICA_PORT', '3306'),
+            'database'  => env('DB_DATABASE', 'umamis_hris'),
+            'username'  => env('DB_USERNAME', 'djambred'),
+            'password'  => env('DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'strict'    => true,
+            'engine'    => 'InnoDB',
+        ],
 
         'pgsql' => [
             'driver'         => 'pgsql',

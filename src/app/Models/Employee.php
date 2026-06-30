@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Employee extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'id_number', 'name', 'nickname',
@@ -18,7 +20,7 @@ class Employee extends Model
         'status_karyawan', 'gender',
         'tempat_lahir', 'tanggal_lahir', 'generation',
         'hire_date', 'contract_end_date', 'pendidikan', 'jurusan',
-        'alamat_ktp',  'no_telepon',
+        'alamat_ktp', 'alamat_domisili', 'kota', 'provinsi', 'kode_pos', 'no_telepon',
         'performance_score', 'performance_category',
         'supervisor_id', 'user_id',
         'is_active', 'resign_date', 'resign_reason',
@@ -32,6 +34,26 @@ class Employee extends Model
         'is_active'         => 'boolean',
         'performance_score' => 'decimal:2',
     ];
+
+    // ── LogsActivity config ───────────────────────────────────────────
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'name', 'id_number', 'department_id', 'section_id', 'position_id',
+                'status_karyawan', 'supervisor_id', 'is_active',
+                'performance_score', 'performance_category',
+                'resign_date', 'resign_reason',
+            ])
+            ->logOnlyDirty()          // hanya catat field yang berubah
+            ->dontSubmitEmptyLogs()   // jangan catat jika tidak ada yang berubah
+            ->setDescriptionForEvent(fn (string $eventName) => match ($eventName) {
+                'created' => "Data karyawan {$this->name} dibuat",
+                'updated' => "Data karyawan {$this->name} diperbarui",
+                'deleted' => "Data karyawan {$this->name} dihapus",
+                default   => "Karyawan {$this->name}: {$eventName}",
+            });
+    }
 
     // ── Boot: auto-set generation berdasarkan tahun lahir ─────────────
     protected static function boot(): void
@@ -107,8 +129,11 @@ class Employee extends Model
 
     public function getMasaKerjaAttribute(): string
     {
-        if (! $this->hire_date) return '-';
+        if (! $this->hire_date) {
+            return '-';
+        }
         $diff = $this->hire_date->diff(now());
+
         return $diff->y > 0
             ? "{$diff->y} tahun {$diff->m} bulan"
             : "{$diff->m} bulan";
