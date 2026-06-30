@@ -7,7 +7,7 @@ namespace App\Filament\Admin\Resources\Employees\RelationManagers;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Actions\ViewAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
