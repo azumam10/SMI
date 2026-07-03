@@ -18,4 +18,17 @@ class EditLeaveRequest extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    public function mount($record): void
+    {
+        parent::mount($record);
+        
+        abort_unless(
+            in_array($this->record->status, [
+                'pending',
+                'supervisor_approved',
+                ]),
+                403
+                );
+    }
 }

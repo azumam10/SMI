@@ -8,17 +8,16 @@ use Illuminate\Support\Facades\Storage;
 
 class DocumentFileController extends Controller
 {
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         $file = DocumentFile::findOrFail($id);
 
-        // Hapus file fisik dari storage
-        Storage::disk($file->disk)->delete($file->path);
-
-        // Hapus record dari database
+        // File fisik otomatis dihapus oleh event Model (booted)
         $file->delete();
 
-        // Redirect back dengan notifikasi
-        return back()->with('success', 'File berhasil dihapus.');
+        return back()->with(
+            'success',
+            'File berhasil dihapus.'
+        );
     }
 }

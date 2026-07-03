@@ -14,10 +14,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Utilities\Get; // 🟢 Diubah ke namespace Filament\Schemas
-use Filament\Schemas\Components\Utilities\Set; // 🟢 Diubah ke namespace Filament\Schemas
+use Filament\Schemas\Components\Utilities\Get; 
+use Filament\Schemas\Components\Utilities\Set; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Employee;
+use App\Models\LeaveBalance;
+use App\Services\WorkingDayCalculator;
+use Filament\Notifications\Notification;
 
 final class LeaveRequestForm
 {
@@ -35,23 +39,66 @@ final class LeaveRequestForm
                     ->columns(2)
                     ->schema([
                         Select::make('employee_id')
-                            ->label('Karyawan')
-                            ->required()
                             ->relationship('employee', 'name')
                             ->searchable()
                             ->preload()
-                            ->default(fn () => Auth::user()->employee?->id)
-                            ->hidden(fn () => !Auth::user()->hasRole(['super_admin', 'hrd']))
-                            ->disabled(fn () => !Auth::user()->hasRole(['super_admin', 'hrd'])),
+                            ->required()
+                            ->default(fn() => auth()->user()->employee?->id)
+                            ->visible(fn () => auth()->user()->hasRole(['super_admin','hrd']))
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                $employee = Employee::find($state);
+
+                                if (! $employee) {
+                                    return;
+                                }
+
+                                if (in_array($employee->employment_status, [
+                                    'resigned',
+                                    'inactive',
+                                ])) {
+
+                                    Notification::make()
+                                        ->danger()
+                                        ->title('Karyawan tidak dapat mengajukan cuti')
+                                        ->body('Status karyawan Resign atau Non Aktif.')
+                                        ->send();
+
+                                    $set('employee_id', null);
+                                }
+
+                            })
+                            ->dehydrated(),
 
                         Select::make('leave_type_id')
                             ->label('Jenis Cuti')
                             ->required()
                             ->options(LeaveType::where('is_active', true)->pluck('name', 'id'))
                             ->live()
-                            ->afterStateUpdated(function (Set $set) {
-                                $set('documents', []);
-                            }),
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                            $set('documents', []);
+
+                            $employeeId = $get('employee_id');
+
+                            if (! $employeeId) {
+                                return;
+                            }
+
+                            $balance = LeaveBalance::query()
+                                ->where('employee_id', $employeeId)
+                                ->where('leave_type_id', $state)
+                                ->where('year', now()->year)
+                                ->first();
+
+                            if (! $balance) {
+
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Saldo cuti belum tersedia')
+                                    ->send();
+
+                            }
+
+                        }),
 
                         DatePicker::make('start_date')
                             ->label('Tanggal Mulai')
@@ -69,18 +116,21 @@ final class LeaveRequestForm
                                     self::calculateTotalDays($get, $set);
                                 }
                             }),
-
-                        DatePicker::make('end_date')
+                            
+                            DatePicker::make('end_date')
                             ->label('Tanggal Selesai')
                             ->required()
                             ->displayFormat('d/m/Y')
                             ->minDate(fn (Get $get) => $get('start_date') ?? today())
+                            ->rule('after_or_equal:start_date')
                             ->live()
                             ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                
                                 if ($state && $get('start_date')) {
                                     self::calculateTotalDays($get, $set);
-                                }
-                            }),
+                                    }
+                              }),
+
 
                         TextInput::make('total_days')
                             ->label('Total Hari')
@@ -142,37 +192,6 @@ final class LeaveRequestForm
                     ->collapsible()
                     ->collapsed(fn (Get $get) => !$get('leave_type_id')),
 
-                // Section: Approval Status
-                Section::make('Approval')
-                    ->icon('heroicon-m-check-badge')
-                    ->columns(2)
-                    ->schema([
-                        Select::make('status')
-                            ->label('Status')
-                            ->options([
-                                'pending' => 'Menunggu',
-                                'supervisor_approved' => 'Disetujui Atasan',
-                                'supervisor_rejected' => 'Ditolak Atasan',
-                                'hrd_approved' => 'Disetujui HRD',
-                                'hrd_rejected' => 'Ditolak HRD',
-                                'cancelled' => 'Dibatalkan',
-                            ])
-                            ->disabled()
-                            ->visible(fn ($record) => $record !== null),
-
-                        Textarea::make('supervisor_note')
-                            ->label('Catatan Atasan')
-                            ->rows(2)
-                            ->disabled()
-                            ->visible(fn ($record) => $record && $record->supervisor_id),
-
-                        Textarea::make('hrd_note')
-                            ->label('Catatan HRD')
-                            ->rows(2)
-                            ->disabled()
-                            ->visible(fn ($record) => $record && $record->hrd_id),
-                    ])
-                    ->visible(fn ($record) => $record !== null),
             ]);
     }
 
@@ -201,19 +220,54 @@ final class LeaveRequestForm
     /**
      * Calculate total leave days based on date range input.
      */
-    private static function calculateTotalDays(Get $get, Set $set): void
-    {
-        $start = $get('start_date');
-        $end = $get('end_date');
-        
-        if ($start && $end) {
-            $startDate = Carbon::parse($start);
-            $endDate = Carbon::parse($end);
-            
-            if ($endDate->gte($startDate)) {
-                $days = $startDate->diffInDays($endDate) + 1;
+               private static function calculateTotalDays(
+                Get $get,
+                Set $set
+            ): void {
+
+                $start = $get('start_date');
+                $end = $get('end_date');
+
+                if (! $start || ! $end) {
+                    $set('total_days', null);
+                    return;
+                }
+
+                $calculator = app(WorkingDayCalculator::class);
+
+                $days = $calculator->calculate(
+                    Carbon::parse($start),
+                    Carbon::parse($end)
+                );
+
                 $set('total_days', $days);
+
+                $employeeId = $get('employee_id');
+                $leaveTypeId = $get('leave_type_id');
+
+                if (! $employeeId || ! $leaveTypeId) {
+                    return;
+                }
+
+                $balance = LeaveBalance::query()
+                    ->where('employee_id', $employeeId)
+                    ->where('leave_type_id', $leaveTypeId)
+                    ->where('year', now()->year)
+                    ->first();
+
+                if (! $balance) {
+                    return;
+                }
+
+                if ($days > $balance->remaining) {
+
+                    Notification::make()
+                        ->danger()
+                        ->title('Saldo cuti tidak mencukupi')
+                        ->body("Sisa cuti hanya {$balance->remaining} hari.")
+                        ->send();
+
+                }
+
             }
-        }
-    }
 }

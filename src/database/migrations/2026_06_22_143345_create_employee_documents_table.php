@@ -37,24 +37,7 @@ return new class extends Migration
             $table->index(['employee_id', 'category']);
         });
 
-        // ── File fisik per dokumen (max 5 file per kategori) ─────────
-        Schema::create('document_files', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('employee_document_id')
-                ->constrained('employee_documents')
-                ->cascadeOnDelete();
-            $table->string('original_name');
-            $table->string('stored_name');
-            $table->string('disk')->default('local');
-            $table->string('path');
-            $table->string('mime_type', 100)->nullable();
-            $table->unsignedBigInteger('size')->nullable();
-            $table->tinyInteger('sort_order')->default(0);
-            $table->string('uploaded_by')->nullable();
-            $table->timestamps();
-
-            $table->index(['employee_document_id', 'sort_order']);
-        });
+        
     }
 
     public function down(): void

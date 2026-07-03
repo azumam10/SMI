@@ -69,16 +69,15 @@ public function scopeOrdered($query)
     return $query->orderBy('sort_order');
 }
 
-    // Hapus file fisik saat record dihapus
-    protected static function booted(): void
+   protected static function booted(): void
 {
-    static::deleting(function (DocumentFile $file) {
+    static::deleting(function (DocumentFile $file): void {
         if (
-            $file->disk &&
-            $file->path &&
-            Storage::disk($file->disk)->exists($file->path)
+            filled($file->disk) &&
+            filled($file->path) &&
+            \Storage::disk($file->disk)->exists($file->path)
         ) {
-            Storage::disk($file->disk)->delete($file->path);
+            \Storage::disk($file->disk)->delete($file->path);
         }
     });
 }

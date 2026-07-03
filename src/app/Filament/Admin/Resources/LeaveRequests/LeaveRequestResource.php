@@ -9,7 +9,7 @@ use App\Filament\Admin\Resources\LeaveRequests\Pages\ViewLeaveRequest;
 use App\Filament\Admin\Resources\LeaveRequests\Schemas\LeaveRequestForm;
 use App\Filament\Admin\Resources\LeaveRequests\Schemas\LeaveRequestInfolist;
 use App\Filament\Admin\Resources\LeaveRequests\Tables\LeaveRequestsTable;
-use App\Filament\Admin\Resources\LeaveRequests\RelationManagers\DocumentsRelationManager;
+// use App\Filament\Admin\Resources\LeaveRequests\RelationManagers\DocumentsRelationManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Models\LeaveRequest;
@@ -22,6 +22,8 @@ use Filament\Tables\Table;
 
 class LeaveRequestResource extends Resource
 {
+    protected static ?int $navigationSort = 1;
+    
     protected static ?string $model = LeaveRequest::class;
 
     protected static ?string $navigationLabel = 'Permintaan Cuti';
@@ -32,7 +34,7 @@ class LeaveRequestResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Management Cuti';
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-s-chat-bubble-left-right';
+    protected static string|BackedEnum|null $navigationIcon =Heroicon::OutlinedCalendarDays;
 
     public static function form(Schema $schema): Schema
     {
@@ -51,37 +53,56 @@ class LeaveRequestResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            DocumentsRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getEloquentQuery(): Builder
-    {
-        $user = Auth::user();
-        $query = parent::getEloquentQuery();
+{
+    $user = auth()->user();
 
-        if ($user->hasRole('super_admin') || $user->hasRole('hrd')) {
-            return $query;
-        }
+    $query = parent::getEloquentQuery();
 
-        if ($user->hasRole('kepala_bagian')) {
-            // Kepala bagian melihat cuti bawahannya + dirinya sendiri
-            $employee = $user->employee;
-            if ($employee) {
-                $subordinateIds = $employee->subordinates()->pluck('id');
-                return $query->whereIn('employee_id', $subordinateIds->push($employee->id));
-            }
-            return $query->whereRaw('0=1');
-        }
-
-        // Karyawan biasa: hanya melihat punya sendiri
-        if ($user->hasRole('karyawan')) {
-            return $query->where('employee_id', $user->employee?->id ?? 0);
-        }
-
-        return $query->whereRaw('0=1');
+    // Super Admin & HRD melihat semua
+    if (
+        $user->hasRole('super_admin') ||
+        $user->hasRole('hrd')
+    ) {
+        return $query;
     }
+
+    $employee = $user->employee;
+
+    if (! $employee) {
+        return $query->whereRaw('1 = 0');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kepala Bagian
+    |--------------------------------------------------------------------------
+    */
+
+    if ($user->hasRole('kepala_bagian')) {
+
+        $ids = $employee
+            ->subordinates()
+            ->pluck('id')
+            ->push($employee->id);
+
+        return $query->whereIn('employee_id', $ids);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Semua selain HRD & Kepala Bagian
+    |--------------------------------------------------------------------------
+    */
+
+    return $query->where(
+        'employee_id',
+        $employee->id
+    );
+}
 
     public static function getPages(): array
     {
