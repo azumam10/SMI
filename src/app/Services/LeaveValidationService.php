@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Employee;
@@ -8,10 +10,10 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use Carbon\Carbon;
 
-class LeaveValidationService
+final class LeaveValidationService
 {
     public function __construct(
-        protected WorkingDayCalculator $calculator
+        private WorkingDayCalculator $calculator
     ) {}
 
     /**
@@ -43,8 +45,8 @@ class LeaveValidationService
         if ($startDate->greaterThan($endDate)) {
 
             return [
-                'valid'=>false,
-                'message'=>'Tanggal mulai tidak boleh melebihi tanggal selesai.',
+                'valid' => false,
+                'message' => 'Tanggal mulai tidak boleh melebihi tanggal selesai.',
             ];
 
         }
@@ -63,8 +65,8 @@ class LeaveValidationService
         if ($days <= 0) {
 
             return [
-                'valid'=>false,
-                'message'=>'Rentang tanggal tidak memiliki hari kerja.',
+                'valid' => false,
+                'message' => 'Rentang tanggal tidak memiliki hari kerja.',
             ];
 
         }
@@ -77,21 +79,21 @@ class LeaveValidationService
 
         $balance = LeaveBalance::query()
 
-            ->where('employee_id',$employee->id)
+            ->where('employee_id', $employee->id)
 
-            ->where('leave_type_id',$leaveType->id)
+            ->where('leave_type_id', $leaveType->id)
 
-            ->where('year',$startDate->year)
+            ->where('year', $startDate->year)
 
             ->first();
 
-        if (!$balance) {
+        if (! $balance) {
 
             return [
 
-                'valid'=>false,
+                'valid' => false,
 
-                'message'=>'Saldo cuti belum dibuat.',
+                'message' => 'Saldo cuti belum dibuat.',
 
             ];
 
@@ -101,9 +103,9 @@ class LeaveValidationService
 
             return [
 
-                'valid'=>false,
+                'valid' => false,
 
-                'message'=>'Sisa cuti tidak mencukupi.',
+                'message' => 'Sisa cuti tidak mencukupi.',
 
             ];
 
@@ -117,35 +119,35 @@ class LeaveValidationService
 
         $exists = LeaveRequest::query()
 
-            ->where('employee_id',$employee->id)
+            ->where('employee_id', $employee->id)
 
-            ->whereIn('status',[
+            ->whereIn('status', [
                 'pending',
                 'supervisor_approved',
                 'hrd_approved',
             ])
 
-            ->where(function($query) use($startDate,$endDate){
+            ->where(function ($query) use ($startDate, $endDate) {
 
                 $query
 
-                    ->whereBetween('start_date',[
+                    ->whereBetween('start_date', [
                         $startDate,
-                        $endDate
+                        $endDate,
                     ])
 
-                    ->orWhereBetween('end_date',[
+                    ->orWhereBetween('end_date', [
                         $startDate,
-                        $endDate
+                        $endDate,
                     ])
 
-                    ->orWhere(function($q) use($startDate,$endDate){
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
 
                         $q
 
-                            ->where('start_date','<=',$startDate)
+                            ->where('start_date', '<=', $startDate)
 
-                            ->where('end_date','>=',$endDate);
+                            ->where('end_date', '>=', $endDate);
 
                     });
 
@@ -153,13 +155,13 @@ class LeaveValidationService
 
             ->exists();
 
-        if($exists){
+        if ($exists) {
 
             return [
 
-                'valid'=>false,
+                'valid' => false,
 
-                'message'=>'Tanggal cuti bertabrakan dengan pengajuan lain.',
+                'message' => 'Tanggal cuti bertabrakan dengan pengajuan lain.',
 
             ];
 
@@ -171,21 +173,21 @@ class LeaveValidationService
         |--------------------------------------------------------------------------
         */
 
-        if(
+        if (
 
             $leaveType->require_document
 
             &&
 
-            $documentCount==0
+            $documentCount === 0
 
-        ){
+        ) {
 
             return [
 
-                'valid'=>false,
+                'valid' => false,
 
-                'message'=>'Dokumen pendukung wajib diupload.',
+                'message' => 'Dokumen pendukung wajib diupload.',
 
             ];
 
@@ -199,9 +201,9 @@ class LeaveValidationService
 
         $pending = LeaveRequest::query()
 
-            ->where('employee_id',$employee->id)
+            ->where('employee_id', $employee->id)
 
-            ->whereIn('status',[
+            ->whereIn('status', [
 
                 'pending',
 
@@ -211,13 +213,13 @@ class LeaveValidationService
 
             ->exists();
 
-        if($pending){
+        if ($pending) {
 
             return [
 
-                'valid'=>false,
+                'valid' => false,
 
-                'message'=>'Masih ada pengajuan cuti yang sedang diproses.',
+                'message' => 'Masih ada pengajuan cuti yang sedang diproses.',
 
             ];
 
@@ -231,19 +233,19 @@ class LeaveValidationService
 
         return [
 
-            'valid'=>true,
+            'valid' => true,
 
-            'message'=>'OK',
+            'message' => 'OK',
 
-            'working_days'=>$days,
+            'working_days' => $days,
 
         ];
 
-            /*
-            |--------------------------------------------------------------------------
-            | Status karyawan
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Status karyawan
+        |--------------------------------------------------------------------------
+        */
 
         if (! $employee->is_active) {
 
@@ -254,19 +256,19 @@ class LeaveValidationService
 
         }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Resign
-            |--------------------------------------------------------------------------
-            */
+        /*
+        |--------------------------------------------------------------------------
+        | Resign
+        |--------------------------------------------------------------------------
+        */
 
-            if ($employee->resign_date !== null) {
+        if ($employee->resign_date !== null) {
 
-                return [
-                    'valid' => false,
-                    'message' => 'Karyawan yang telah resign tidak dapat mengajukan cuti.',
-                ];
+            return [
+                'valid' => false,
+                'message' => 'Karyawan yang telah resign tidak dapat mengajukan cuti.',
+            ];
 
-            }
+        }
     }
 }

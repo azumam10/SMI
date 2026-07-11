@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Sections;
 
 use App\Filament\Admin\Resources\Sections\Pages\CreateSection;
@@ -13,15 +15,17 @@ use App\Models\Section;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
-class SectionResource extends Resource
+final class SectionResource extends Resource
 {
     protected static ?string $model = Section::class;
+
     protected static ?string $navigationLabel = 'Section';
+
     protected static ?string $pluralModelLabel = 'Data Section';
+
     protected static string|UnitEnum|null $navigationGroup = 'Struktur Perusahaan';
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';

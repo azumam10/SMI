@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Employees\Pages;
 
 use App\Filament\Admin\Resources\Employees\EmployeeResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
-class ListEmployees extends ListRecords
+final class ListEmployees extends ListRecords
 {
     protected static string $resource = EmployeeResource::class;
 

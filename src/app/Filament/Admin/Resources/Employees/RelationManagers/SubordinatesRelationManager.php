@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Employees\RelationManagers;
 
+use BackedEnum;
+use Filament\Actions\ViewAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class SubordinatesRelationManager extends RelationManager
+final class SubordinatesRelationManager extends RelationManager
 {
     protected static string $relationship = 'subordinates';
 
     protected static ?string $title = 'Bawahan Langsung';
 
     // Filament v5: $icon harus BackedEnum|string|null — pakai Heroicon enum
-    protected static string|\BackedEnum|null $icon = Heroicon::UserGroup;
+    protected static string|BackedEnum|null $icon = Heroicon::UserGroup;
 
     // RelationManager ini hanya tampil jika karyawan punya bawahan
     public static function canViewForRecord(
@@ -68,11 +68,11 @@ class SubordinatesRelationManager extends RelationManager
                     ->label('Status')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'PKWTT'    => 'primary',
-                        'PKWT'     => 'warning',
-                        'HARIAN'   => 'gray',
+                        'PKWTT' => 'primary',
+                        'PKWT' => 'warning',
+                        'HARIAN' => 'gray',
                         'DIREKTUR' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     }),
 
                 TextColumn::make('masa_kerja')
@@ -85,8 +85,8 @@ class SubordinatesRelationManager extends RelationManager
                     ->badge()
                     ->color(fn ($state) => match ($state) {
                         'High' => 'success',
-                        'Med'  => 'warning',
-                        'Low'  => 'danger',
+                        'Med' => 'warning',
+                        'Low' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => $state ?? '—'),
@@ -100,8 +100,8 @@ class SubordinatesRelationManager extends RelationManager
                 SelectFilter::make('status_karyawan')
                     ->label('Status')
                     ->options([
-                        'PKWTT'  => 'PKWTT (Tetap)',
-                        'PKWT'   => 'PKWT (Kontrak)',
+                        'PKWTT' => 'PKWTT (Tetap)',
+                        'PKWT' => 'PKWT (Kontrak)',
                         'HARIAN' => 'Harian',
                     ]),
 
@@ -109,8 +109,8 @@ class SubordinatesRelationManager extends RelationManager
                     ->label('Kinerja')
                     ->options([
                         'High' => 'High',
-                        'Med'  => 'Medium',
-                        'Low'  => 'Low',
+                        'Med' => 'Medium',
+                        'Low' => 'Low',
                     ]),
             ])
             ->actions([

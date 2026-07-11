@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Positions;
 
 use App\Filament\Admin\Resources\Positions\Pages\CreatePosition;
@@ -13,19 +15,20 @@ use App\Models\Position;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use UnitEnum;
 
-
-class PositionResource extends Resource
+final class PositionResource extends Resource
 {
     protected static ?string $model = Position::class;
-    protected static ?string $navigationLabel = 'Posisi';
-    protected static ?string $pluralModelLabel = 'Data Posisi';
-    protected static string|UnitEnum|null $navigationGroup = 'Struktur Perusahaan';
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
 
+    protected static ?string $navigationLabel = 'Posisi';
+
+    protected static ?string $pluralModelLabel = 'Data Posisi';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Struktur Perusahaan';
+
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
 
     public static function form(Schema $schema): Schema
     {

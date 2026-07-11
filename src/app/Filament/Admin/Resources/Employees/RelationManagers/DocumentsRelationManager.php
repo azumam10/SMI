@@ -6,35 +6,33 @@ namespace App\Filament\Admin\Resources\Employees\RelationManagers;
 
 use App\Models\DocumentFile;
 use App\Models\EmployeeDocument;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
-use Filament\Notifications\Notification;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
-class DocumentsRelationManager extends RelationManager
+final class DocumentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'documents';
 
     protected static ?string $title = 'Dokumen Karyawan';
 
     // Filament v5: $icon harus BackedEnum|string|null — pakai Heroicon enum
-    protected static string|\BackedEnum|null $icon = Heroicon::DocumentText;
+    protected static string|BackedEnum|null $icon = Heroicon::DocumentText;
 
     // ──────────────────────────────────────────────────────────────────
     // FORM: tambah / edit grup dokumen
@@ -88,7 +86,7 @@ class DocumentsRelationManager extends RelationManager
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                         ])
                         ->disk('public')
-                        ->directory(fn ($record) => 'employees/' . ($record?->employee_id ?? 'temp') . '/documents')
+                        ->directory(fn ($record) => 'employees/'.($record?->employee_id ?? 'temp').'/documents')
                         ->storeFileNamesIn('original_file_names')
                         ->reorderable()
                         ->appendFiles()
@@ -125,8 +123,8 @@ class DocumentsRelationManager extends RelationManager
                     ->badge()
                     ->color(fn ($state) => match (true) {
                         $state === 0 => 'danger',
-                        $state >= 5  => 'warning',
-                        default      => 'success',
+                        $state >= 5 => 'warning',
+                        default => 'success',
                     })
                     ->suffix(fn ($state) => ' / 5'),
 
@@ -156,7 +154,7 @@ class DocumentsRelationManager extends RelationManager
                         if ($existing) {
                             Notification::make()
                                 ->title('Kategori sudah ada')
-                                ->body('Karyawan ini sudah memiliki dokumen ' . EmployeeDocument::CATEGORY_LABELS[$data['category']] . '. Edit dokumen yang sudah ada.')
+                                ->body('Karyawan ini sudah memiliki dokumen '.EmployeeDocument::CATEGORY_LABELS[$data['category']].'. Edit dokumen yang sudah ada.')
                                 ->warning()
                                 ->send();
 
@@ -166,9 +164,9 @@ class DocumentsRelationManager extends RelationManager
                         // Buat EmployeeDocument
                         $document = EmployeeDocument::create([
                             'employee_id' => $employeeId,
-                            'category'    => $data['category'],
-                            'label'       => $data['label'] ?? null,
-                            'keterangan'  => $data['keterangan'] ?? null,
+                            'category' => $data['category'],
+                            'label' => $data['label'] ?? null,
+                            'keterangan' => $data['keterangan'] ?? null,
                         ]);
 
                         // Simpan file-file yang diupload
@@ -185,7 +183,7 @@ class DocumentsRelationManager extends RelationManager
                     ->label('File')
                     ->icon('heroicon-m-paper-clip')
                     ->color('info')
-                    ->modalHeading(fn ($record) => 'File — ' . $record->category_label)
+                    ->modalHeading(fn ($record) => 'File — '.$record->category_label)
                     ->modalContent(fn ($record) => view(
                         'filament.modals.document-files',
                         ['document' => $record->load('files')]
@@ -197,7 +195,7 @@ class DocumentsRelationManager extends RelationManager
                 EditAction::make()
                     ->using(function (Model $record, array $data): Model {
                         $record->update([
-                            'label'      => $data['label'] ?? null,
+                            'label' => $data['label'] ?? null,
                             'keterangan' => $data['keterangan'] ?? null,
                         ]);
 
@@ -240,7 +238,7 @@ class DocumentsRelationManager extends RelationManager
     ): void {
         foreach ($filePaths as $index => $path) {
             // path sudah disimpan oleh FileUpload ke disk 'public'
-            $fullPath = storage_path('app/public/' . $path);
+            $fullPath = storage_path('app/public/'.$path);
             $mimeType = file_exists($fullPath)
                 ? mime_content_type($fullPath)
                 : 'application/octet-stream';
@@ -249,15 +247,15 @@ class DocumentsRelationManager extends RelationManager
 
             DocumentFile::create([
                 'employee_document_id' => $document->id,
-                'original_name'        => $originalName,
-                'stored_name'          => basename($path),
-                'disk'                 => 'public',
-                'path'                 => $path,
-                'mime_type'            => $mimeType,
-                'size'                 => $size,
-                'sort_order'           => $startOrder + $index,
-                'uploaded_by'          => auth()->id(),
-                ]);
+                'original_name' => $originalName,
+                'stored_name' => basename($path),
+                'disk' => 'public',
+                'path' => $path,
+                'mime_type' => $mimeType,
+                'size' => $size,
+                'sort_order' => $startOrder + $index,
+                'uploaded_by' => auth()->id(),
+            ]);
         }
     }
 }

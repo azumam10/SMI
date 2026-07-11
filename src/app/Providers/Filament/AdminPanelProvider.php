@@ -35,6 +35,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
 use Openplain\FilamentShadcnTheme\Color;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 final class AdminPanelProvider extends PanelProvider
 {
@@ -127,6 +128,7 @@ final class AdminPanelProvider extends PanelProvider
                     ->enabled(app()->environment('local'))
                     ->switchable(true)
                     ->users(fn () => User::pluck('email', 'name')->toArray()),
+                FilamentApexChartsPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

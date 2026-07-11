@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Position extends Model
+final class Position extends Model
 {
     use HasFactory;
 
@@ -14,7 +16,7 @@ class Position extends Model
 
     protected $casts = [
         'has_subordinates' => 'boolean',
-        'is_active'        => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function employees(): HasMany

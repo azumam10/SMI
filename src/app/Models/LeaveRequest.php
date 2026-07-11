@@ -1,58 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\User;
 
-class LeaveRequest extends Model
+final class LeaveRequest extends Model
 {
     use HasFactory;
 
-   protected $fillable = [
-    'employee_id',
-    'leave_type_id',
+    protected $fillable = [
+        'employee_id',
+        'leave_type_id',
 
-    'start_date',
-    'end_date',
+        'start_date',
+        'end_date',
 
-    'total_days',
-    'approved_days',
+        'total_days',
+        'approved_days',
 
-    'reason',
+        'reason',
 
-    'status',
-    'submitted_at',
+        'status',
+        'submitted_at',
 
-    'supervisor_id',
-    'supervisor_approved_at',
-    'supervisor_note',
+        'supervisor_id',
+        'supervisor_approved_at',
+        'supervisor_note',
 
-    'hrd_id',
-    'hrd_approved_at',
-    'hrd_note',
+        'hrd_id',
+        'hrd_approved_at',
+        'hrd_note',
 
-    'cancelled_at',
-    'cancelled_by',
-];
+        'cancelled_at',
+        'cancelled_by',
+    ];
 
     protected $casts = [
-    'start_date' => 'date',
-    'end_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
 
-    'total_days' => 'decimal:1',
-    'approved_days' => 'decimal:1',
+        'total_days' => 'decimal:1',
+        'approved_days' => 'decimal:1',
 
-    'submitted_at' => 'datetime',
+        'submitted_at' => 'datetime',
 
-    'supervisor_approved_at' => 'datetime',
-    'hrd_approved_at' => 'datetime',
+        'supervisor_approved_at' => 'datetime',
+        'hrd_approved_at' => 'datetime',
 
-    'cancelled_at' => 'datetime',
-];
+        'cancelled_at' => 'datetime',
+    ];
 
     public function cancelledBy(): BelongsTo
     {

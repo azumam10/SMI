@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
-use App\Models\User;
 
-
-class DocumentFile extends Model
+final class DocumentFile extends Model
 {
     use HasFactory;
 
@@ -22,7 +22,7 @@ class DocumentFile extends Model
     ];
 
     protected $casts = [
-        'size'       => 'integer',
+        'size' => 'integer',
         'sort_order' => 'integer',
     ];
 
@@ -39,9 +39,14 @@ class DocumentFile extends Model
     public function getFormattedSizeAttribute(): string
     {
         $bytes = $this->size ?? 0;
-        if ($bytes >= 1048576) return round($bytes / 1048576, 2) . ' MB';
-        if ($bytes >= 1024)    return round($bytes / 1024, 2) . ' KB';
-        return $bytes . ' B';
+        if ($bytes >= 1048576) {
+            return round($bytes / 1048576, 2).' MB';
+        }
+        if ($bytes >= 1024) {
+            return round($bytes / 1024, 2).' KB';
+        }
+
+        return $bytes.' B';
     }
 
     public function isImage(): bool
@@ -55,30 +60,30 @@ class DocumentFile extends Model
     }
 
     public function uploader(): BelongsTo
-{
-    return $this->belongsTo(User::class, 'uploaded_by');
-}
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
 
-public function getUploaderNameAttribute(): string
-{
-    return $this->uploader?->name ?? '-';
-}
+    public function getUploaderNameAttribute(): string
+    {
+        return $this->uploader?->name ?? '-';
+    }
 
-public function scopeOrdered($query)
-{
-    return $query->orderBy('sort_order');
-}
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('sort_order');
+    }
 
-   protected static function booted(): void
-{
-    static::deleting(function (DocumentFile $file): void {
-        if (
-            filled($file->disk) &&
-            filled($file->path) &&
-            \Storage::disk($file->disk)->exists($file->path)
-        ) {
-            \Storage::disk($file->disk)->delete($file->path);
-        }
-    });
-}
+    protected static function booted(): void
+    {
+        self::deleting(function (DocumentFile $file): void {
+            if (
+                filled($file->disk) &&
+                filled($file->path) &&
+                \Storage::disk($file->disk)->exists($file->path)
+            ) {
+                \Storage::disk($file->disk)->delete($file->path);
+            }
+        });
+    }
 }

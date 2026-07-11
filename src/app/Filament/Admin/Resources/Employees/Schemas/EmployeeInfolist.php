@@ -7,7 +7,6 @@ namespace App\Filament\Admin\Resources\Employees\Schemas;
 use App\Models\Employee;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -66,11 +65,11 @@ final class EmployeeInfolist
                         ->label('Status')
                         ->badge()
                         ->color(fn ($state) => match ($state) {
-                            'PKWTT'    => 'primary',
-                            'PKWT'     => 'warning',
-                            'HARIAN'   => 'gray',
+                            'PKWTT' => 'primary',
+                            'PKWT' => 'warning',
+                            'HARIAN' => 'gray',
                             'DIREKTUR' => 'danger',
-                            default    => 'gray',
+                            default => 'gray',
                         }),
                     TextEntry::make('gender')
                         ->label('Jenis Kelamin')
@@ -81,11 +80,11 @@ final class EmployeeInfolist
                         ->label('Generasi')
                         ->badge()
                         ->color(fn ($state) => match ($state) {
-                            'Gen Z'        => 'info',
-                            'Milenial'     => 'success',
-                            'Gen X'        => 'warning',
+                            'Gen Z' => 'info',
+                            'Milenial' => 'success',
+                            'Gen X' => 'warning',
                             'Baby Boomers' => 'danger',
-                            default        => 'gray',
+                            default => 'gray',
                         })
                         ->placeholder('—'),
                     IconEntry::make('is_active')
@@ -187,9 +186,9 @@ final class EmployeeInfolist
                         ->label('Kategori Kinerja')
                         ->badge()
                         ->color(fn ($state) => match ($state) {
-                            'High'  => 'success',
-                            'Med'   => 'warning',
-                            'Low'   => 'danger',
+                            'High' => 'success',
+                            'Med' => 'warning',
+                            'Low' => 'danger',
                             default => 'gray',
                         })
                         ->placeholder('Belum dinilai'),

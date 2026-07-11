@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\LeaveTypes\Pages;
 
 use App\Filament\Admin\Resources\LeaveTypes\LeaveTypeResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
-class ViewLeaveType extends ViewRecord
+final class ViewLeaveType extends ViewRecord
 {
     protected static string $resource = LeaveTypeResource::class;
 

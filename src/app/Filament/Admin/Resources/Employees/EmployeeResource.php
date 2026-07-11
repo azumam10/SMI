@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Employees;
 
 use App\Filament\Admin\Resources\Employees\Pages\CreateEmployee;
@@ -13,20 +15,21 @@ use App\Filament\Admin\Resources\Employees\Schemas\EmployeeForm;
 use App\Filament\Admin\Resources\Employees\Schemas\EmployeeInfolist;
 use App\Filament\Admin\Resources\Employees\Tables\EmployeesTable;
 use App\Models\Employee;
+use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
-class EmployeeResource extends Resource
+final class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Karyawan';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Karyawan';
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $navigationLabel = 'Karyawan';
 
@@ -68,10 +71,10 @@ class EmployeeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListEmployees::route('/'),
+            'index' => ListEmployees::route('/'),
             'create' => CreateEmployee::route('/create'),
-            'view'   => ViewEmployee::route('/{record}'),
-            'edit'   => EditEmployee::route('/{record}/edit'),
+            'view' => ViewEmployee::route('/{record}'),
+            'edit' => EditEmployee::route('/{record}/edit'),
         ];
     }
 

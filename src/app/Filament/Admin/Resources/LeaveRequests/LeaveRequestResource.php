@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\LeaveRequests;
 
 use App\Filament\Admin\Resources\LeaveRequests\Pages\CreateLeaveRequest;
@@ -9,21 +11,19 @@ use App\Filament\Admin\Resources\LeaveRequests\Pages\ViewLeaveRequest;
 use App\Filament\Admin\Resources\LeaveRequests\Schemas\LeaveRequestForm;
 use App\Filament\Admin\Resources\LeaveRequests\Schemas\LeaveRequestInfolist;
 use App\Filament\Admin\Resources\LeaveRequests\Tables\LeaveRequestsTable;
-// use App\Filament\Admin\Resources\LeaveRequests\RelationManagers\DocumentsRelationManager;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 use App\Models\LeaveRequest;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use UnitEnum;
 
-class LeaveRequestResource extends Resource
+final class LeaveRequestResource extends Resource
 {
     protected static ?int $navigationSort = 1;
-    
+
     protected static ?string $model = LeaveRequest::class;
 
     protected static ?string $navigationLabel = 'Permintaan Cuti';
@@ -34,7 +34,7 @@ class LeaveRequestResource extends Resource
 
     protected static string|UnitEnum|null $navigationGroup = 'Management Cuti';
 
-    protected static string|BackedEnum|null $navigationIcon =Heroicon::OutlinedCalendarDays;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     public static function form(Schema $schema): Schema
     {
@@ -57,52 +57,56 @@ class LeaveRequestResource extends Resource
     }
 
     public static function getEloquentQuery(): Builder
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    $query = parent::getEloquentQuery();
+        if (! $user) {
+            return parent::getEloquentQuery()->whereKey([]);
+        }
 
-    // Super Admin & HRD melihat semua
-    if (
-        $user->hasRole('super_admin') ||
-        $user->hasRole('hrd')
-    ) {
-        return $query;
+        $query = parent::getEloquentQuery()
+            ->with([
+                'employee',
+                'leaveType',
+                'supervisor',
+                'hrd',
+                'documents',
+            ])
+            ->withCount('documents');
+
+        if (
+            $user->hasRole('super_admin') ||
+            $user->hasRole('hrd')
+        ) {
+            return $query;
+        }
+
+        $employee = $user->employee;
+
+        if (! $employee) {
+            return $query->whereKey([]);
+        }
+
+        if ($user->hasRole('kepala_bagian')) {
+
+            $employeeIds = $employee
+                ->subordinates()
+                ->pluck('id')
+                ->push($employee->id)
+                ->unique()
+                ->values();
+
+            return $query->whereIn(
+                'employee_id',
+                $employeeIds
+            );
+        }
+
+        return $query->where(
+            'employee_id',
+            $employee->id
+        );
     }
-
-    $employee = $user->employee;
-
-    if (! $employee) {
-        return $query->whereRaw('1 = 0');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Kepala Bagian
-    |--------------------------------------------------------------------------
-    */
-
-    if ($user->hasRole('kepala_bagian')) {
-
-        $ids = $employee
-            ->subordinates()
-            ->pluck('id')
-            ->push($employee->id);
-
-        return $query->whereIn('employee_id', $ids);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Semua selain HRD & Kepala Bagian
-    |--------------------------------------------------------------------------
-    */
-
-    return $query->where(
-        'employee_id',
-        $employee->id
-    );
-}
 
     public static function getPages(): array
     {

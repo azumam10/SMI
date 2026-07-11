@@ -10,9 +10,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
@@ -83,14 +83,14 @@ final class EmployeeForm
                                     ->label('Level')
                                     ->required()
                                     ->options([
-                                        'Direktur'      => 'Direktur',
-                                        'Manager'       => 'Manager',
+                                        'Direktur' => 'Direktur',
+                                        'Manager' => 'Manager',
                                         'Kepala Bagian' => 'Kepala Bagian',
-                                        'Supervisor'    => 'Supervisor',
-                                        'Staff'         => 'Staff',
-                                        'Operator'      => 'Operator',
-                                        'Security'      => 'Security',
-                                        'Lainnya'       => 'Lainnya',
+                                        'Supervisor' => 'Supervisor',
+                                        'Staff' => 'Staff',
+                                        'Operator' => 'Operator',
+                                        'Security' => 'Security',
+                                        'Lainnya' => 'Lainnya',
                                     ]),
                             ]),
                     ]),
@@ -104,9 +104,9 @@ final class EmployeeForm
                             ->label('Status Karyawan')
                             ->required()
                             ->options([
-                                'PKWTT'    => 'PKWTT (Tetap)',
-                                'PKWT'     => 'PKWT (Kontrak)',
-                                'HARIAN'   => 'Harian',
+                                'PKWTT' => 'PKWTT (Tetap)',
+                                'PKWT' => 'PKWT (Kontrak)',
+                                'HARIAN' => 'Harian',
                                 'DIREKTUR' => 'Direktur',
                             ])
                             ->default('PKWT'),
@@ -136,9 +136,11 @@ final class EmployeeForm
                             // Saat tanggal lahir berubah, update usia & generasi secara reactive
                             ->live()
                             ->afterStateUpdated(function (Get $get, Set $set, $state) {
-                                if (! $state) return;
+                                if (! $state) {
+                                    return;
+                                }
                                 $year = (int) \Carbon\Carbon::parse($state)->format('Y');
-                                $age  = \Carbon\Carbon::parse($state)->age;
+                                $age = \Carbon\Carbon::parse($state)->age;
                                 $set('usia', $age);
                                 $set('generation', Employee::resolveGeneration($year));
                             }),
@@ -154,9 +156,9 @@ final class EmployeeForm
                         Select::make('generation')
                             ->label('Generasi')
                             ->options([
-                                'Gen Z'        => 'Gen Z (1997+)',
-                                'Milenial'     => 'Milenial (1981–1996)',
-                                'Gen X'        => 'Gen X (1965–1980)',
+                                'Gen Z' => 'Gen Z (1997+)',
+                                'Milenial' => 'Milenial (1981–1996)',
+                                'Gen X' => 'Gen X (1965–1980)',
                                 'Baby Boomers' => 'Baby Boomers (≤1964)',
                             ])
                             ->disabled()
@@ -277,8 +279,8 @@ final class EmployeeForm
                         Select::make('performance_category')
                             ->label('Kategori Kinerja')
                             ->options([
-                                'Low'  => 'Low',
-                                'Med'  => 'Medium',
+                                'Low' => 'Low',
+                                'Med' => 'Medium',
                                 'High' => 'High',
                             ])
                             ->disabled()

@@ -7,11 +7,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use App\Models\Employee;
 
 final class User extends Authenticatable
 {
@@ -56,6 +55,11 @@ final class User extends Authenticatable
         return true;
     }
 
+    public function employee(): HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -67,10 +71,5 @@ final class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function employee(): HasOne
-    {
-        return $this->hasOne(Employee::class);
     }
 }

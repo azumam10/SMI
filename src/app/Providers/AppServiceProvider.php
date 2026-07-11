@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Employee;
+use App\Observers\EmployeeObserver;
 use App\Policies\ActivityPolicy;
 use Filament\Livewire\Notifications;
 use Filament\Notifications\Notification;
@@ -14,7 +16,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
 use Spatie\Activitylog\Models\Activity;
-
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -41,5 +42,6 @@ final class AppServiceProvider extends ServiceProvider
                 ->danger()
                 ->send();
         };
+        Employee::observe(EmployeeObserver::class);
     }
 }

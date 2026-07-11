@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,75 +12,74 @@ return new class extends Migration
     {
         Schema::create('leave_requests', function (Blueprint $table) {
 
-    $table->id();
+            $table->id();
 
-    $table->foreignId('employee_id')
-        ->constrained()
-        ->cascadeOnDelete();
+            $table->foreignId('employee_id')
+                ->constrained()
+                ->cascadeOnDelete();
 
-    $table->foreignId('leave_type_id')
-        ->constrained();
+            $table->foreignId('leave_type_id')
+                ->constrained()
+                ->cascadeOnDelete();
 
-    $table->date('start_date');
+            $table->date('start_date');
 
-    $table->date('end_date');
+            $table->date('end_date');
 
-    $table->decimal('total_days', 5, 1);
+            $table->decimal('total_days', 5, 1);
 
-    $table->text('reason');
+            $table->decimal('approved_days', 5, 1)
+                ->nullable();
 
-    $table->enum('status', [
-        'pending',
-        'supervisor_approved',
-        'supervisor_rejected',
-        'hrd_approved',
-        'hrd_rejected',
-        'cancelled',
-    ])->default('pending');
+            $table->text('reason');
 
-    // Waktu pengajuan
-    $table->timestamp('submitted_at')->nullable();
+            $table->enum('status', [
+                'pending',
+                'supervisor_approved',
+                'supervisor_rejected',
+                'hrd_approved',
+                'hrd_rejected',
+                'cancelled',
+            ])->default('pending');
 
-    // Approval Supervisor
-    $table->foreignId('supervisor_id')
-        ->nullable()
-        ->constrained('employees')
-        ->nullOnDelete();
+            $table->timestamp('submitted_at')->nullable();
 
-    $table->timestamp('supervisor_approved_at')
-        ->nullable();
+            $table->foreignId('supervisor_id')
+                ->nullable()
+                ->constrained('employees')
+                ->nullOnDelete();
 
-    $table->text('supervisor_note')
-        ->nullable();
+            $table->timestamp('supervisor_approved_at')
+                ->nullable();
 
-    // Approval HRD
-    $table->foreignId('hrd_id')
-        ->nullable()
-        ->constrained('employees')
-        ->nullOnDelete();
+            $table->text('supervisor_note')
+                ->nullable();
 
-    $table->timestamp('hrd_approved_at')
-        ->nullable();
+            $table->foreignId('hrd_id')
+                ->nullable()
+                ->constrained('employees')
+                ->nullOnDelete();
 
-    $table->text('hrd_note')
-        ->nullable();
+            $table->timestamp('hrd_approved_at')
+                ->nullable();
 
-    // Cancel
-    $table->timestamp('cancelled_at')
-        ->nullable();
+            $table->text('hrd_note')
+                ->nullable();
 
-    $table->foreignId('cancelled_by')
-        ->nullable()
-        ->constrained('users')
-        ->nullOnDelete();
+            $table->timestamp('cancelled_at')
+                ->nullable();
 
-    $table->timestamps();
+            $table->foreignId('cancelled_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+            $table->timestamps();
 
-    // Index
-    $table->index(['employee_id', 'status']);
-    $table->index(['status', 'supervisor_id']);
-    $table->index(['status', 'hrd_id']);
-});
+            // Index
+            $table->index(['employee_id', 'status']);
+            $table->index(['status', 'supervisor_id']);
+            $table->index(['status', 'hrd_id']);
+        });
     }
 
     public function down()

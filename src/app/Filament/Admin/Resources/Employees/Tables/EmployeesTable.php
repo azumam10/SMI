@@ -50,11 +50,11 @@ final class EmployeesTable
                     ->badge()
                     // Filament v5: ->colors() sudah dihapus, pakai ->color(fn)
                     ->color(fn (string $state) => match ($state) {
-                        'PKWTT'    => 'primary',
-                        'PKWT'     => 'warning',
-                        'HARIAN'   => 'gray',
+                        'PKWTT' => 'primary',
+                        'PKWT' => 'warning',
+                        'HARIAN' => 'gray',
                         'DIREKTUR' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     }),
 
                 TextColumn::make('gender')
@@ -75,11 +75,11 @@ final class EmployeesTable
                     ->badge()
                     // Filament v5: ->colors() sudah dihapus, pakai ->color(fn)
                     ->color(fn ($state) => match ($state) {
-                        'Gen Z'        => 'info',
-                        'Milenial'     => 'success',
-                        'Gen X'        => 'warning',
+                        'Gen Z' => 'info',
+                        'Milenial' => 'success',
+                        'Gen X' => 'warning',
                         'Baby Boomers' => 'danger',
-                        default        => 'gray',
+                        default => 'gray',
                     })
                     ->toggleable(),
 
@@ -100,9 +100,9 @@ final class EmployeesTable
                     ->label('Kinerja')
                     ->badge()
                     ->color(fn ($state) => match ($state) {
-                        'High'  => 'success',
-                        'Med'   => 'warning',
-                        'Low'   => 'danger',
+                        'High' => 'success',
+                        'Med' => 'warning',
+                        'Low' => 'danger',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => $state ?? '—')
@@ -135,9 +135,9 @@ final class EmployeesTable
                 SelectFilter::make('status_karyawan')
                     ->label('Status')
                     ->options([
-                        'PKWTT'    => 'PKWTT (Tetap)',
-                        'PKWT'     => 'PKWT (Kontrak)',
-                        'HARIAN'   => 'Harian',
+                        'PKWTT' => 'PKWTT (Tetap)',
+                        'PKWT' => 'PKWT (Kontrak)',
+                        'HARIAN' => 'Harian',
                         'DIREKTUR' => 'Direktur',
                     ]),
 
@@ -152,8 +152,8 @@ final class EmployeesTable
                     ->label('Kinerja')
                     ->options([
                         'High' => 'High',
-                        'Med'  => 'Medium',
-                        'Low'  => 'Low',
+                        'Med' => 'Medium',
+                        'Low' => 'Low',
                     ]),
             ])
             ->filtersLayout(FiltersLayout::AboveContent)

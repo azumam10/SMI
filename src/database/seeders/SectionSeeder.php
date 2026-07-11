@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\Department;
 use App\Models\Section;
 use Illuminate\Database\Seeder;
 
-class SectionSeeder extends Seeder
+final class SectionSeeder extends Seeder
 {
     public function run(): void
     {
@@ -14,7 +16,9 @@ class SectionSeeder extends Seeder
         // Semua bagian saat ini berada di bawah departemen Produksi.
         $prod = Department::where('code', 'PROD')->first();
 
-        if (! $prod) return;
+        if (! $prod) {
+            return;
+        }
 
         $sections = [
             // ── Struktural ────────────────────────────────────────────

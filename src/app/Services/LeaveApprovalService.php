@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
-
-class LeaveApprovalService
+final class LeaveApprovalService
 {
     /**
      * Approve oleh Kepala Bagian
@@ -19,11 +21,11 @@ class LeaveApprovalService
     ): LeaveRequest {
 
         if ($leave->status !== 'pending') {
-            throw new \Exception('Status cuti sudah berubah.');
+            throw new Exception('Status cuti sudah berubah.');
         }
 
-        if ($leave->supervisor_id != $supervisorId) {
-            throw new \Exception('Anda tidak berhak melakukan approval.');
+        if ($leave->supervisor_id !== $supervisorId) {
+            throw new Exception('Anda tidak berhak melakukan approval.');
         }
 
         DB::transaction(function () use ($leave, $supervisorId, $note) {
@@ -55,13 +57,12 @@ class LeaveApprovalService
     ): LeaveRequest {
 
         if ($leave->status !== 'pending') {
-            throw new \Exception('Status cuti sudah berubah.');
+            throw new Exception('Status cuti sudah berubah.');
         }
 
-        if ($leave->supervisor_id != $supervisorId) {
-            throw new \Exception('Anda tidak berhak melakukan approval.');
+        if ($leave->supervisor_id !== $supervisorId) {
+            throw new Exception('Anda tidak berhak melakukan approval.');
         }
-
 
         DB::transaction(function () use ($leave, $supervisorId, $note) {
 
@@ -94,23 +95,21 @@ class LeaveApprovalService
         if (
             $leave->supervisor_id &&
             $leave->status !== 'supervisor_approved'
-            ) {
-    throw new \Exception(
-        'Pengajuan belum disetujui Kepala Bagian.'
-        );
-}
-
-if (
-    ! $leave->supervisor_id &&
-    $leave->status !== 'pending'
-    ) {
-        throw new \Exception(
-            'Status cuti tidak valid.'
+        ) {
+            throw new Exception(
+                'Pengajuan belum disetujui Kepala Bagian.'
             );
-            }
-        
-        
-           
+        }
+
+        if (
+            ! $leave->supervisor_id &&
+            $leave->status !== 'pending'
+        ) {
+            throw new Exception(
+                'Status cuti tidak valid.'
+            );
+        }
+
         DB::transaction(function () use ($leave, $hrdId, $note) {
 
             $approvedDays = $leave->total_days;
@@ -154,20 +153,20 @@ if (
         if (
             $leave->supervisor_id &&
             $leave->status !== 'supervisor_approved'
-            ) {
-                throw new \Exception(
-                    'Pengajuan belum disetujui Kepala Bagian.'
-                    );
-                    }
-                    
-                    if (
-                        ! $leave->supervisor_id &&
-                        $leave->status !== 'pending'
-                        ) {
-                            throw new \Exception(
-                                'Status cuti tidak valid.'
-                                );
-                          }
+        ) {
+            throw new Exception(
+                'Pengajuan belum disetujui Kepala Bagian.'
+            );
+        }
+
+        if (
+            ! $leave->supervisor_id &&
+            $leave->status !== 'pending'
+        ) {
+            throw new Exception(
+                'Status cuti tidak valid.'
+            );
+        }
 
         DB::transaction(function () use ($leave, $hrdId, $note) {
 
@@ -195,14 +194,16 @@ if (
         LeaveRequest $leave,
         int $userId
     ): LeaveRequest {
+        if ($leave->employee->user_id !== $userId) {
+            throw new Exception('Anda tidak berhak membatalkan cuti ini.');
+        }
 
         if (! in_array($leave->status, [
             'pending',
             'supervisor_approved',
         ])) {
 
-            throw new \Exception('Cuti tidak bisa dibatalkan.');
-
+            throw new Exception('Cuti tidak bisa dibatalkan.');
         }
 
         DB::transaction(function () use ($leave, $userId) {

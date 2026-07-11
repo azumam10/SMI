@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Departments;
 
 use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
@@ -11,18 +13,21 @@ use App\Filament\Admin\Resources\Departments\Schemas\DepartmentInfolist;
 use App\Filament\Admin\Resources\Departments\Tables\DepartmentsTable;
 use App\Models\Department;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
-class DepartmentResource extends Resource
+final class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
+
     protected static ?string $navigationLabel = 'Department';
+
     protected static ?string $pluralModelLabel = 'Data Department';
+
     protected static string|UnitEnum|null $navigationGroup = 'Struktur Perusahaan';
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
 
     public static function form(Schema $schema): Schema

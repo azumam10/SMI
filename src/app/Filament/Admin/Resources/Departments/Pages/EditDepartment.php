@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\Departments\Pages;
 
 use App\Filament\Admin\Resources\Departments\DepartmentResource;
@@ -7,7 +9,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
-class EditDepartment extends EditRecord
+final class EditDepartment extends EditRecord
 {
     protected static string $resource = DepartmentResource::class;
 

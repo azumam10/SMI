@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\Employee;
@@ -8,7 +10,7 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use Illuminate\Support\Facades\DB;
 
-class LeaveRequestService
+final class LeaveRequestService
 {
     public function create(array $data): LeaveRequest
     {
@@ -35,14 +37,14 @@ class LeaveRequestService
             $balance = LeaveBalance::firstOrCreate(
 
                 [
-                    'employee_id'   => $employee->id,
+                    'employee_id' => $employee->id,
                     'leave_type_id' => $leaveType->id,
-                    'year'          => now()->year,
+                    'year' => now()->year,
                 ],
 
                 [
                     'quota' => $leaveType->quota_days,
-                    'used'  => 0,
+                    'used' => 0,
                 ]
 
             );

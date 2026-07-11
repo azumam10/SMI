@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\LeaveType;
 use Illuminate\Database\Seeder;
 
-class LeaveTypeSeeder extends Seeder
+final class LeaveTypeSeeder extends Seeder
 {
     public function run()
     {

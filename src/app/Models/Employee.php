@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,9 +12,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Employee extends Model
+final class Employee extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     protected $fillable = [
         'id_number', 'name', 'nickname',
@@ -27,13 +29,29 @@ class Employee extends Model
     ];
 
     protected $casts = [
-        'tanggal_lahir'     => 'date',
-        'hire_date'         => 'date',
+        'tanggal_lahir' => 'date',
+        'hire_date' => 'date',
         'contract_end_date' => 'date',
-        'resign_date'       => 'date',
-        'is_active'         => 'boolean',
+        'resign_date' => 'date',
+        'is_active' => 'boolean',
         'performance_score' => 'decimal:2',
     ];
+
+    public static function resolveGeneration(int $year): string
+    {
+        return match (true) {
+            $year >= 1997 => 'Gen Z',
+            $year >= 1981 => 'Milenial',
+            $year >= 1965 => 'Gen X',
+            default => 'Baby Boomers',
+        };
+    }
+
+    // ── Query ke replica untuk laporan berat ──────────────────────────
+    public static function onReplica(): \Illuminate\Database\Eloquent\Builder
+    {
+        return self::on('mysql_replica');
+    }
 
     // ── LogsActivity config ───────────────────────────────────────────
     public function getActivitylogOptions(): LogOptions
@@ -51,32 +69,8 @@ class Employee extends Model
                 'created' => "Data karyawan {$this->name} dibuat",
                 'updated' => "Data karyawan {$this->name} diperbarui",
                 'deleted' => "Data karyawan {$this->name} dihapus",
-                default   => "Karyawan {$this->name}: {$eventName}",
+                default => "Karyawan {$this->name}: {$eventName}",
             });
-    }
-
-    // ── Boot: auto-set generation berdasarkan tahun lahir ─────────────
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::saving(function (Employee $employee) {
-            if ($employee->isDirty('tanggal_lahir') && $employee->tanggal_lahir) {
-                $employee->generation = static::resolveGeneration(
-                    (int) $employee->tanggal_lahir->format('Y')
-                );
-            }
-        });
-    }
-
-    public static function resolveGeneration(int $year): string
-    {
-        return match (true) {
-            $year >= 1997 => 'Gen Z',
-            $year >= 1981 => 'Milenial',
-            $year >= 1965 => 'Gen X',
-            default       => 'Baby Boomers',
-        };
     }
 
     // ── Relasi ────────────────────────────────────────────────────────
@@ -97,12 +91,12 @@ class Employee extends Model
 
     public function supervisor(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'supervisor_id');
+        return $this->belongsTo(self::class, 'supervisor_id');
     }
 
     public function subordinates(): HasMany
     {
-        return $this->hasMany(Employee::class, 'supervisor_id');
+        return $this->hasMany(self::class, 'supervisor_id');
     }
 
     public function user(): BelongsTo
@@ -113,12 +107,6 @@ class Employee extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(EmployeeDocument::class);
-    }
-
-    // ── Query ke replica untuk laporan berat ──────────────────────────
-    public static function onReplica(): \Illuminate\Database\Eloquent\Builder
-    {
-        return static::on('mysql_replica');
     }
 
     // ── Accessor ──────────────────────────────────────────────────────
@@ -142,11 +130,11 @@ class Employee extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status_karyawan) {
-            'PKWTT'    => 'Karyawan Tetap (PKWTT)',
-            'PKWT'     => 'Karyawan Kontrak (PKWT)',
-            'HARIAN'   => 'Karyawan Harian',
+            'PKWTT' => 'Karyawan Tetap (PKWTT)',
+            'PKWT' => 'Karyawan Kontrak (PKWT)',
+            'HARIAN' => 'Karyawan Harian',
             'DIREKTUR' => 'Direktur',
-            default    => $this->status_karyawan,
+            default => $this->status_karyawan,
         };
     }
 
@@ -159,5 +147,19 @@ class Employee extends Model
     public function scopeBawahan($query, int $supervisorId)
     {
         return $query->where('supervisor_id', $supervisorId);
+    }
+
+    // ── Boot: auto-set generation berdasarkan tahun lahir ─────────────
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::saving(function (Employee $employee) {
+            if ($employee->isDirty('tanggal_lahir') && $employee->tanggal_lahir) {
+                $employee->generation = static::resolveGeneration(
+                    (int) $employee->tanggal_lahir->format('Y')
+                );
+            }
+        });
     }
 }

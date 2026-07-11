@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
-class WorkingDayCalculator
+final class WorkingDayCalculator
 {
     /**
      * Hitung jumlah hari kerja.

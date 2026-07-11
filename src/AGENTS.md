@@ -91,7 +91,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
 - Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+    - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 
@@ -188,13 +188,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 
 Select::make('type')
-    ->options(CompanyType::class)
-    ->required()
-    ->live(),
+->options(CompanyType::class)
+->required()
+->live(),
 
 TextInput::make('company_name')
-    ->required()
-    ->visible(fn (Get $get): bool => $get('type') === 'business'),
+->required()
+->visible(fn (Get $get): bool => $get('type') === 'business'),
 
 </code-snippet>
 
@@ -205,15 +205,15 @@ use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
 
 TextInput::make('title')
-    ->required()
-    ->live(onBlur: true)
-    ->afterStateUpdated(fn (Set $set, ?string $state) => $set(
+->required()
+->live(onBlur: true)
+->afterStateUpdated(fn (Set $set, ?string $state) => $set(
         'slug',
         Str::slug($state ?? ''),
-    )),
+)),
 
 TextInput::make('slug')
-    ->required(),
+->required(),
 
 </code-snippet>
 
@@ -224,16 +224,16 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
 Section::make('Details')
-    ->schema([
-        Grid::make(2)->schema([
-            TextInput::make('first_name')
-                ->columnSpan(1),
-            TextInput::make('last_name')
-                ->columnSpan(1),
-            TextInput::make('bio')
-                ->columnSpanFull(),
-        ]),
-    ]),
+->schema([
+Grid::make(2)->schema([
+TextInput::make('first_name')
+->columnSpan(1),
+TextInput::make('last_name')
+->columnSpan(1),
+TextInput::make('bio')
+->columnSpanFull(),
+]),
+]),
 
 </code-snippet>
 
@@ -243,14 +243,14 @@ Use `Repeater` for inline `HasMany` management. `->relationship()` with no args 
 use Filament\Forms\Components\Repeater;
 
 Repeater::make('qualifications')
-    ->relationship()
-    ->schema([
-        TextInput::make('institution')
-            ->required(),
-        TextInput::make('qualification')
-            ->required(),
-    ])
-    ->columns(2),
+->relationship()
+->schema([
+TextInput::make('institution')
+->required(),
+TextInput::make('qualification')
+->required(),
+])
+->columns(2),
 
 </code-snippet>
 
@@ -260,7 +260,7 @@ Use `state()` with a `Closure` to compute derived column values:
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('full_name')
-    ->state(fn (User $record): string => "{$record->first_name} {$record->last_name}"),
+->state(fn (User $record): string => "{$record->first_name} {$record->last_name}"),
 
 </code-snippet>
 
@@ -272,13 +272,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 SelectFilter::make('status')
-    ->options(UserStatus::class),
+->options(UserStatus::class),
 
 SelectFilter::make('author')
-    ->relationship('author', 'name'),
+->relationship('author', 'name'),
 
 Filter::make('verified')
-    ->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
+->query(fn (Builder $query) => $query->whereNotNull('email_verified_at')),
 
 </code-snippet>
 
@@ -288,12 +288,12 @@ Actions are buttons that encapsulate optional modal forms and behavior:
 use Filament\Actions\Action;
 
 Action::make('updateEmail')
-    ->schema([
-        TextInput::make('email')
-            ->email()
-            ->required(),
-    ])
-    ->action(fn (array $data, User $record) => $record->update($data)),
+->schema([
+TextInput::make('email')
+->email()
+->required(),
+])
+->action(fn (array $data, User $record) => $record->update($data)),
 
 </code-snippet>
 
@@ -308,9 +308,9 @@ Testing setup (requires `pestphp/pest-plugin-livewire` in `composer.json`):
 use function Pest\Livewire\livewire;
 
 livewire(ListUsers::class)
-    ->assertCanSeeTableRecords($users)
+->assertCanSeeTableRecords($users)
     ->searchTable($users->first()->name)
-    ->assertCanSeeTableRecords($users->take(1))
+->assertCanSeeTableRecords($users->take(1))
     ->assertCanNotSeeTableRecords($users->skip(1));
 
 </code-snippet>
@@ -319,18 +319,18 @@ livewire(ListUsers::class)
 use function Pest\Laravel\assertDatabaseHas;
 
 livewire(CreateUser::class)
-    ->fillForm([
-        'name' => 'Test',
-        'email' => 'test@example.com',
-    ])
-    ->call('create')
-    ->assertNotified()
-    ->assertHasNoFormErrors()
-    ->assertRedirect();
+->fillForm([
+'name' => 'Test',
+'email' => 'test@example.com',
+])
+->call('create')
+->assertNotified()
+->assertHasNoFormErrors()
+->assertRedirect();
 
 assertDatabaseHas(User::class, [
-    'name' => 'Test',
-    'email' => 'test@example.com',
+'name' => 'Test',
+'email' => 'test@example.com',
 ]);
 
 </code-snippet>
@@ -343,8 +343,8 @@ livewire(EditUser::class, ['record' => $user->id])
     ->assertHasNoFormErrors();
 
 assertDatabaseHas(User::class, [
-    'id' => $user->id,
-    'name' => 'Updated',
+'id' => $user->id,
+'name' => 'Updated',
 ]);
 
 </code-snippet>
@@ -370,10 +370,10 @@ Use `->callAction(DeleteAction::class)` for page actions, or `->callAction(TestA
 use Filament\Actions\Testing\TestAction;
 
 livewire(ListUsers::class)
-    ->callAction(TestAction::make('promote')->table($user), [
-        'role' => 'admin',
-    ])
-    ->assertNotified();
+->callAction(TestAction::make('promote')->table($user), [
+'role' => 'admin',
+])
+->assertNotified();
 
 </code-snippet>
 
@@ -396,8 +396,8 @@ livewire(ListUsers::class)
 - **`Repeater` uses `->schema()`, not `->fields()`.**
 - **Never add `->dehydrated(false)` to fields that need to be saved.** It strips the value from form state before `->action()` or the save handler runs. Only use it for helper/UI-only fields.
 - **Use correct property types when overriding `Page`, `Resource`, and `Widget` properties.** These properties have union types or changed modifiers that must be preserved:
-  - `$navigationIcon`: `protected static string | BackedEnum | null` (not `?string`)
-  - `$navigationGroup`: `protected static string | UnitEnum | null` (not `?string`)
-  - `$view`: `protected string` (not `protected static string`) on `Page` and `Widget` classes
+    - `$navigationIcon`: `protected static string | BackedEnum | null` (not `?string`)
+    - `$navigationGroup`: `protected static string | UnitEnum | null` (not `?string`)
+    - `$view`: `protected string` (not `protected static string`) on `Page` and `Widget` classes
 
 </laravel-boost-guidelines>

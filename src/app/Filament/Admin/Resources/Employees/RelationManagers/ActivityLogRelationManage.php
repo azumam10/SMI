@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Employees\RelationManagers;
 
+use BackedEnum;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -11,7 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class ActivityLogRelationManager extends RelationManager
+final class ActivityLogRelationManager extends RelationManager
 {
     // Relasi 'activities' disediakan oleh package spatie/laravel-activitylog
     // yang sudah ter-include via jacobtims/filament-logger
@@ -20,7 +21,7 @@ class ActivityLogRelationManager extends RelationManager
     protected static ?string $title = 'Riwayat Perubahan';
 
     // Filament v5: $icon harus BackedEnum|string|null — pakai Heroicon enum
-    protected static string|\BackedEnum|null $icon = Heroicon::Clock;
+    protected static string|BackedEnum|null $icon = Heroicon::Clock;
 
     // Tidak ada form — log hanya dibaca, tidak dibuat manual
     public function form(Schema $schema): Schema
@@ -53,13 +54,13 @@ class ActivityLogRelationManager extends RelationManager
                         'created' => 'success',
                         'updated' => 'warning',
                         'deleted' => 'danger',
-                        default   => 'gray',
+                        default => 'gray',
                     })
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'created' => 'Dibuat',
                         'updated' => 'Diperbarui',
                         'deleted' => 'Dihapus',
-                        default   => $state,
+                        default => $state,
                     }),
 
                 TextColumn::make('description')
@@ -85,7 +86,7 @@ class ActivityLogRelationManager extends RelationManager
                         }
 
                         return implode(', ', array_slice($changed, 0, 3))
-                            . (count($changed) > 3 ? ' ...' : '');
+                            .(count($changed) > 3 ? ' ...' : '');
                     })
                     ->limit(80)
                     ->toggleable(isToggledHiddenByDefault: true),

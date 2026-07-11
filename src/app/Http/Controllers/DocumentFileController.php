@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\DocumentFile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
-class DocumentFileController extends Controller
+final class DocumentFileController extends Controller
 {
     public function destroy(Request $request, int $id): RedirectResponse
     {
