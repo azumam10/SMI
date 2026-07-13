@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\LeaveRequest;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
-final class LeaveRequestPolicy
+class LeaveRequestPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:LeaveRequest');
@@ -36,4 +36,5 @@ final class LeaveRequestPolicy
     {
         return $authUser->can('Delete:LeaveRequest');
     }
+
 }

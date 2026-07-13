@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\PerformanceReview;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -107,6 +108,36 @@ final class Employee extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(EmployeeDocument::class);
+    }
+
+// __ Performance Rivew ________________________________________________
+    public function performanceReviews(): HasMany
+    {
+        return $this->hasMany(PerformanceReview::class);
+    }
+
+    public function reviewedPerformanceReviews(): HasMany
+    {
+        return $this->hasMany(
+            PerformanceReview::class,
+            'reviewer_id'
+            );
+    }
+
+    public function latestPerformanceReview()
+    {
+        return $this->hasOne(PerformanceReview::class)
+            ->latestOfMany();
+    }
+
+    public function getLatestPerformanceScoreAttribute(): ?float
+    {
+        return $this->latestPerformanceReview?->final_score;
+    }
+
+    public function getLatestPerformanceCategoryAttribute(): ?string
+    {
+        return $this->latestPerformanceReview?->category;
     }
 
     // ── Accessor ──────────────────────────────────────────────────────
