@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Section;
-use Filament\Tables;
 use Filament\Actions\Action;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
-class SectionEmployeeTable extends BaseWidget
+final class SectionEmployeeTable extends BaseWidget
 {
     protected int|string|array $columnSpan = 'full';
 
@@ -20,7 +22,7 @@ class SectionEmployeeTable extends BaseWidget
             ->query(
                 Section::query()
                     ->withCount([
-                        'employees' => fn ($q) => $q->where('is_active', true)
+                        'employees' => fn ($q) => $q->where('is_active', true),
                     ])
                     ->orderBy('name')
             )
@@ -40,15 +42,16 @@ class SectionEmployeeTable extends BaseWidget
                     ->state(function (Section $record) {
                         // total semua karyawan aktif
                         $total = Section::withCount([
-                            'employees' => fn ($q) => $q->where('is_active', true)
+                            'employees' => fn ($q) => $q->where('is_active', true),
                         ])->get()->sum('employees_count');
 
-                        if ($total == 0) {
+                        if ($total === 0) {
                             return '0%';
                         }
 
                         $percent = round(($record->employees_count / $total) * 100, 1);
-                        return $percent . '%';
+
+                        return $percent.'%';
                     })
                     ->alignRight(),
             ])
@@ -57,7 +60,7 @@ class SectionEmployeeTable extends BaseWidget
                     ->label('Lihat')
                     ->icon('heroicon-o-eye')
                     ->url(function (Section $record) {
-                        return '/admin/employees?tableFilters[section_id][value]=' . $record->id;
+                        return '/admin/employees?tableFilters[section_id][value]='.$record->id;
                     })
                     ->openUrlInNewTab(false),
             ])

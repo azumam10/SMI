@@ -16,15 +16,14 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 
-
-class PerformanceReviewForm
+final class PerformanceReviewForm
 {
     public static function configure(Schema $schema): Schema
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return $schema;
-            }
+        }
         $isHrdOrAdmin = $user->hasAnyRole(['hrd', 'super_admin']);
         $employee = Employee::where('user_id', $user->id)->first();
 
@@ -45,6 +44,7 @@ class PerformanceReviewForm
                                     if ($isHrdOrAdmin) {
                                         return $query->orderBy('name');
                                     }
+
                                     // Supervisor: hanya bawahannya
                                     return $query
                                         ->where('supervisor_id', $employee?->id)
@@ -162,16 +162,16 @@ class PerformanceReviewForm
                             ->live()
                             ->content(function (Get $get): HtmlString {
                                 $discipline = (float) ($get('discipline_score') ?? 0);
-                                $quality    = (float) ($get('quality_score') ?? 0);
-                                $teamwork   = (float) ($get('teamwork_score') ?? 0);
-                                $ethic      = (float) ($get('ethic_score') ?? 0);
+                                $quality = (float) ($get('quality_score') ?? 0);
+                                $teamwork = (float) ($get('teamwork_score') ?? 0);
+                                $ethic = (float) ($get('ethic_score') ?? 0);
                                 $initiative = (float) ($get('initiative_score') ?? 0);
 
                                 $finalScore = PerformanceReview::calculateFinalScore([
                                     'discipline_score' => $discipline,
-                                    'quality_score'    => $quality,
-                                    'teamwork_score'   => $teamwork,
-                                    'ethic_score'      => $ethic,
+                                    'quality_score' => $quality,
+                                    'teamwork_score' => $teamwork,
+                                    'ethic_score' => $ethic,
                                     'initiative_score' => $initiative,
                                 ]);
 
@@ -179,19 +179,18 @@ class PerformanceReviewForm
 
                                 $color = match ($category) {
                                     'Outstanding' => '#22c55e',
-                                    'Excellent'   => '#3b82f6',
-                                    'Good'        => '#eab308',
-                                    'Fair'        => '#6b7280',
-                                    default       => '#ef4444',
+                                    'Excellent' => '#3b82f6',
+                                    'Good' => '#eab308',
+                                    'Fair' => '#6b7280',
+                                    default => '#ef4444',
                                 };
-
 
                                 return new HtmlString("
                                     <div class='flex gap-6 p-4 rounded-xl bg-gray-50 border border-gray-200'>
                                         <div>
                                             <div class='text-sm text-gray-500'>Nilai Akhir</div>
                                             <div class='text-3xl font-bold' style='color: #0f172a;'>"
-                                                . number_format($finalScore, 2) .
+                                                .number_format($finalScore, 2).
                                             "</div>
                                         </div>
                                         <div>

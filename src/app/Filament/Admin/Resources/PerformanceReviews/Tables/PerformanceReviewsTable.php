@@ -9,9 +9,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Actions\Action;
 
-class PerformanceReviewsTable
+final class PerformanceReviewsTable
 {
     public static function configure(Table $table): Table
     {
@@ -32,7 +31,7 @@ class PerformanceReviewsTable
                     ->getStateUsing(fn ($record) => "Semester {$record->semester} / {$record->year}")
                     ->sortable(query: function (Builder $query, string $direction) {
                         return $query->orderBy('year', $direction)
-                                     ->orderBy('semester', $direction);
+                            ->orderBy('semester', $direction);
                     }),
 
                 TextColumn::make('final_score')
@@ -64,10 +63,10 @@ class PerformanceReviewsTable
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options([
-                        'draft'     => 'Draft',
+                        'draft' => 'Draft',
                         'submitted' => 'Menunggu Approval',
-                        'approved'  => 'Disetujui',
-                        'revised'   => 'Revisi',
+                        'approved' => 'Disetujui',
+                        'revised' => 'Revisi',
                     ]),
 
                 SelectFilter::make('year')

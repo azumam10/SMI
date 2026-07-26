@@ -100,11 +100,12 @@ services:
       - ./db_replica/conf.d:/etc/mysql/conf.d:ro
       - ./db_replica/init-replica.sh:/docker-entrypoint-initdb.d/init-replica.sh:ro
     environment:
-      MYSQL_DATABASE: umamis_hris
-      MYSQL_USER: djambred
-      MYSQL_PASSWORD: p455w0rd1!.
       MYSQL_ROOT_PASSWORD: p455w0rd
       TZ: Asia/Jakarta
+      DB_MASTER_HOST: umamis_db_master
+      DB_MASTER_PORT: 3306
+      REPL_USER: replicator
+      REPL_PASSWORD: repl_secret_pwd
     networks:
       - umamis_net
     depends_on:

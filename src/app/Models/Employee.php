@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\PerformanceReview;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -110,7 +109,7 @@ final class Employee extends Model
         return $this->hasMany(EmployeeDocument::class);
     }
 
-// __ Performance Rivew ________________________________________________
+    // __ Performance Rivew ________________________________________________
     public function performanceReviews(): HasMany
     {
         return $this->hasMany(PerformanceReview::class);
@@ -121,7 +120,7 @@ final class Employee extends Model
         return $this->hasMany(
             PerformanceReview::class,
             'reviewer_id'
-            );
+        );
     }
 
     public function latestPerformanceReview()

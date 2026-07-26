@@ -18,7 +18,7 @@ final class EmployeeLeaveQuotaWidget extends StatsOverviewWidget
         $user = auth()->user();
         $employee = Employee::where('user_id', $user->id)->first();
 
-        if (!$employee) {
+        if (! $employee) {
             return [];
         }
 
@@ -44,12 +44,12 @@ final class EmployeeLeaveQuotaWidget extends StatsOverviewWidget
                 ->icon('heroicon-o-calendar')
                 ->color('gray'),
 
-            Stat::make('Cuti Terpakai', number_format($usedLeave, 1) . ' Hari')
+            Stat::make('Cuti Terpakai', number_format($usedLeave, 1).' Hari')
                 ->description("Tahun {$year}")
                 ->icon('heroicon-o-arrow-trending-up')
                 ->color('warning'),
 
-            Stat::make('Sisa Kuota', number_format($remaining, 1) . ' Hari')
+            Stat::make('Sisa Kuota', number_format($remaining, 1).' Hari')
                 ->description('Masih tersedia')
                 ->icon('heroicon-o-check-badge')
                 ->color('success'),

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\PerformanceReview;
@@ -7,11 +9,11 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
-class TopPerformanceTable extends TableWidget
+final class TopPerformanceTable extends TableWidget
 {
     protected static ?string $heading = '🏆 Top 10 Karyawan';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -53,11 +55,11 @@ class TopPerformanceTable extends TableWidget
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Outstanding' => 'success',
-                        'Excellent'   => 'info',
-                        'Good'        => 'warning',
-                        'Fair'        => 'gray',
-                        'Poor'        => 'danger',
-                        default       => 'gray',
+                        'Excellent' => 'info',
+                        'Good' => 'warning',
+                        'Fair' => 'gray',
+                        'Poor' => 'danger',
+                        default => 'gray',
                     }),
             ])
             ->defaultSort('final_score', 'desc')

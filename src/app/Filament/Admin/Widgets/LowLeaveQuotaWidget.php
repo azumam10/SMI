@@ -5,20 +5,23 @@ declare(strict_types=1);
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Employee;
-use App\Models\LeaveRequest;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 final class LowLeaveQuotaWidget extends TableWidget
 {
     protected static ?string $heading = '⚠️ Karyawan dengan Sisa Cuti < 7 Hari';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected ?string $pollingInterval = '60s';
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['super_admin', 'hrd', 'kepala_bagian']);
+    }
 
     public function table(Table $table): Table
     {
@@ -92,8 +95,13 @@ final class LowLeaveQuotaWidget extends TableWidget
                     ->label('Status')
                     ->getStateUsing(function ($record) {
                         $remaining = $record->remaining_quota ?? 0;
-                        if ($remaining <= 0) return 'Habis';
-                        if ($remaining <= 3) return 'Kritis';
+                        if ($remaining <= 0) {
+                            return 'Habis';
+                        }
+                        if ($remaining <= 3) {
+                            return 'Kritis';
+                        }
+
                         return 'Menipis';
                     })
                     ->badge()
@@ -108,10 +116,5 @@ final class LowLeaveQuotaWidget extends TableWidget
             ->emptyStateHeading('Tidak ada karyawan dengan sisa cuti < 7 hari')
             ->emptyStateDescription('Semua karyawan masih memiliki kuota cuti yang cukup.')
             ->poll('60s');
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasAnyRole(['super_admin', 'hrd', 'kepala_bagian']);
     }
 }

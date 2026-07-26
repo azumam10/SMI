@@ -6,17 +6,23 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Models\PerformanceReview;
 use App\Services\PerformanceReviewService;
+use Exception;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Tables;
-use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
-class PendingApprovalWidget extends TableWidget
+final class PendingApprovalWidget extends TableWidget
 {
     protected static ?string $heading = '⏳ Penilaian Menunggu Approval'; // <-- static
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['super_admin', 'hrd']);
+    }
 
     public function table(Table $table): Table
     {
@@ -71,7 +77,7 @@ class PendingApprovalWidget extends TableWidget
                                 ->body("Penilaian untuk {$record->employee->name} telah disetujui.")
                                 ->success()
                                 ->send();
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             Notification::make()
                                 ->title('Gagal menyetujui')
                                 ->body($e->getMessage())
@@ -100,10 +106,5 @@ class PendingApprovalWidget extends TableWidget
             ->poll('10s')
             ->emptyStateHeading('Tidak ada penilaian menunggu approval')
             ->emptyStateDescription('Semua penilaian sudah diproses.');
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasAnyRole(['super_admin', 'hrd']);
     }
 }

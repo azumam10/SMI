@@ -34,8 +34,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Jacobtims\FilamentLogger\FilamentLoggerPlugin;
 use Jeffgreco13\FilamentBreezy\BreezyCore;
-use Openplain\FilamentShadcnTheme\Color;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
+use Openplain\FilamentShadcnTheme\Color;
 
 final class AdminPanelProvider extends PanelProvider
 {

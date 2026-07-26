@@ -7,11 +7,16 @@ namespace App\Filament\Admin\Widgets;
 use App\Models\PerformanceReview;
 use Filament\Widgets\ChartWidget;
 
-class SectionPerformanceChart extends ChartWidget
+final class SectionPerformanceChart extends ChartWidget
 {
     protected ?string $heading = 'Performa per Seksi'; // <-- tanpa static
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['super_admin', 'hrd', 'kepala_bagian']);
+    }
 
     protected function getData(): array
     {
@@ -78,10 +83,5 @@ class SectionPerformanceChart extends ChartWidget
                 ],
             ],
         ];
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasAnyRole(['super_admin', 'hrd', 'kepala_bagian']);
     }
 }

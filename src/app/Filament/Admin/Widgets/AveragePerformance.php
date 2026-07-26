@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\PerformanceReview;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class AveragePerformance extends BaseWidget
+final class AveragePerformance extends BaseWidget
 {
     protected function getStats(): array
     {
@@ -24,10 +26,10 @@ class AveragePerformance extends BaseWidget
                 'Rata-rata Nilai Perusahaan',
                 number_format($average ?? 0, 2)
             )
-            ->description("Semester {$semester} / {$year}")
-            ->descriptionIcon('heroicon-o-chart-bar')
-            ->color('success')
-            ->extraAttributes(['class' => 'cursor-pointer']),
+                ->description("Semester {$semester} / {$year}")
+                ->descriptionIcon('heroicon-o-chart-bar')
+                ->color('success')
+                ->extraAttributes(['class' => 'cursor-pointer']),
         ];
     }
 }

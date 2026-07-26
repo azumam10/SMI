@@ -10,21 +10,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class PerformanceReviewService
+final class PerformanceReviewService
 {
-    // ─── Mapping kategori dari PerformanceReview ke Employee ──
-    private function mapCategoryToEmployee(string $category): string
-    {
-        return match ($category) {
-            'Outstanding' => 'High',
-            'Excellent'   => 'High',
-            'Good'        => 'Med',
-            'Fair'        => 'Low',
-            'Poor'        => 'Low',
-            default       => 'Med',
-        };
-    }
-
     public function create(array $data): PerformanceReview
     {
         return DB::transaction(function () use ($data) {
@@ -80,7 +67,7 @@ class PerformanceReviewService
             // 6. Update employee jika approved
             if ($status === PerformanceReview::STATUS_APPROVED) {
                 Employee::whereKey($data['employee_id'])->update([
-                    'performance_score'    => $finalScore,
+                    'performance_score' => $finalScore,
                     'performance_category' => $this->mapCategoryToEmployee($category),
                 ]);
             }
@@ -98,14 +85,14 @@ class PerformanceReviewService
         }
 
         $review->update([
-            'status'      => PerformanceReview::STATUS_APPROVED,
+            'status' => PerformanceReview::STATUS_APPROVED,
             'approved_by' => auth()->id(),
             'approved_at' => now(),
         ]);
 
         // Update employee dengan mapping
         Employee::whereKey($review->employee_id)->update([
-            'performance_score'    => $review->final_score,
+            'performance_score' => $review->final_score,
             'performance_category' => $this->mapCategoryToEmployee($review->category),
         ]);
     }
@@ -113,7 +100,7 @@ class PerformanceReviewService
     public function revise(PerformanceReview $review): void
     {
         $review->update([
-            'status'      => PerformanceReview::STATUS_REVISED,
+            'status' => PerformanceReview::STATUS_REVISED,
             'approved_by' => null,
             'approved_at' => null,
         ]);
@@ -155,5 +142,18 @@ class PerformanceReviewService
         }
 
         return false;
+    }
+
+    // ─── Mapping kategori dari PerformanceReview ke Employee ──
+    private function mapCategoryToEmployee(string $category): string
+    {
+        return match ($category) {
+            'Outstanding' => 'High',
+            'Excellent' => 'High',
+            'Good' => 'Med',
+            'Fair' => 'Low',
+            'Poor' => 'Low',
+            default => 'Med',
+        };
     }
 }

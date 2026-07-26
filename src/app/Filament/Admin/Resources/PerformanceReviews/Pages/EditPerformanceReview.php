@@ -10,7 +10,7 @@ use App\Services\PerformanceReviewService;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
-class EditPerformanceReview extends EditRecord
+final class EditPerformanceReview extends EditRecord
 {
     protected static string $resource = PerformanceReviewResource::class;
 
@@ -36,13 +36,13 @@ class EditPerformanceReview extends EditRecord
         /** @var PerformanceReview $record */
         $payload = [
             'discipline_score' => $data['discipline_score'],
-            'quality_score'    => $data['quality_score'],
-            'teamwork_score'   => $data['teamwork_score'],
-            'ethic_score'      => $data['ethic_score'],
+            'quality_score' => $data['quality_score'],
+            'teamwork_score' => $data['teamwork_score'],
+            'ethic_score' => $data['ethic_score'],
             'initiative_score' => $data['initiative_score'],
-            'final_score'      => $data['final_score'],
-            'category'         => $data['category'],
-            'notes'            => $data['notes'] ?? $record->notes,
+            'final_score' => $data['final_score'],
+            'category' => $data['category'],
+            'notes' => $data['notes'] ?? $record->notes,
         ];
 
         // Jika status sebelumnya 'revised', ubah ke 'submitted' agar HRD bisa approve ulang

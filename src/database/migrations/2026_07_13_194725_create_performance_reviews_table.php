@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -41,7 +43,7 @@ return new class extends Migration
             // Hasil perhitungan
             $table->decimal('final_score', 5, 2);
             $table->enum('category', [
-                'Outstanding', 'Excellent', 'Good', 'Fair', 'Poor'
+                'Outstanding', 'Excellent', 'Good', 'Fair', 'Poor',
             ]);
 
             // Status workflow
@@ -49,7 +51,7 @@ return new class extends Migration
                 'draft',        // belum disubmit (jika supervisor belum final)
                 'submitted',    // supervisor sudah submit, menunggu HRD
                 'approved',     // HRD setujui
-                'revised'       // HRD minta revisi / sudah direvisi
+                'revised',       // HRD minta revisi / sudah direvisi
             ])->default('draft');
 
             $table->timestamp('approved_at')->nullable();

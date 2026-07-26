@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Section;
 use Filament\Widgets\ChartWidget;
 
-class EmployeesBySectionChart extends ChartWidget
+final class EmployeesBySectionChart extends ChartWidget
 {
     protected ?string $heading = 'Distribusi Karyawan per Section';
 

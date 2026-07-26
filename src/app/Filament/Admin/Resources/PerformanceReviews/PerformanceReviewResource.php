@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Resources\PerformanceReviews;
 
 use App\Filament\Admin\Resources\PerformanceReviews\Pages\CreatePerformanceReview;
@@ -10,31 +12,30 @@ use App\Filament\Admin\Resources\PerformanceReviews\Tables\PerformanceReviewsTab
 use App\Models\PerformanceReview;
 use App\Services\PerformanceReviewService;
 use BackedEnum;
-use UnitEnum;
-use Filament\Resources\Resource;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\Action;
+use UnitEnum;
 
-
-class PerformanceReviewResource extends Resource
+final class PerformanceReviewResource extends Resource
 {
     protected static ?string $model = PerformanceReview::class;
-    
+
     protected static ?string $navigationLabel = 'Penilaian Kinerja';
-    
+
     protected static ?string $modelLabel = 'Penilaian Kinerja';
-    
+
     protected static ?string $pluralModelLabel = 'Penilaian Kinerja';
-    
+
     protected static string|UnitEnum|null $navigationGroup = 'Management HR';
-    
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
-    
+
     protected static ?int $navigationSort = 4;
 
     // ─── Form ─────────────────────────────────────────
@@ -54,8 +55,7 @@ class PerformanceReviewResource extends Resource
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn ($record) =>
-                        auth()->user()->hasAnyRole(['hrd', 'super_admin'])
+                    ->visible(fn ($record) => auth()->user()->hasAnyRole(['hrd', 'super_admin'])
                         && $record->status === PerformanceReview::STATUS_SUBMITTED
                     )
                     ->action(function ($record) {
@@ -70,8 +70,7 @@ class PerformanceReviewResource extends Resource
                     ->label('Kembalikan / Revisi')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
-                    ->visible(fn ($record) =>
-                        auth()->user()->hasAnyRole(['hrd', 'super_admin'])
+                    ->visible(fn ($record) => auth()->user()->hasAnyRole(['hrd', 'super_admin'])
                         && in_array($record->status, [PerformanceReview::STATUS_SUBMITTED, PerformanceReview::STATUS_APPROVED])
                     )
                     ->requiresConfirmation()
@@ -85,13 +84,11 @@ class PerformanceReviewResource extends Resource
                     }),
 
                 EditAction::make()
-                    ->visible(fn ($record) =>
-                        app(PerformanceReviewService::class)->canEdit(auth()->user(), $record)
+                    ->visible(fn ($record) => app(PerformanceReviewService::class)->canEdit(auth()->user(), $record)
                     ),
 
                 DeleteAction::make()
-                    ->visible(fn ($record) =>
-                        app(PerformanceReviewService::class)->canDelete(auth()->user(), $record)
+                    ->visible(fn ($record) => app(PerformanceReviewService::class)->canDelete(auth()->user(), $record)
                     ),
             ]);
     }
@@ -124,9 +121,9 @@ class PerformanceReviewResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListPerformanceReviews::route('/'),
+            'index' => ListPerformanceReviews::route('/'),
             'create' => CreatePerformanceReview::route('/create'),
-            'edit'   => EditPerformanceReview::route('/{record}/edit'),
+            'edit' => EditPerformanceReview::route('/{record}/edit'),
         ];
     }
 }

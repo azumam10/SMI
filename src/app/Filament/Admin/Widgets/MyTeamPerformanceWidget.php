@@ -10,18 +10,23 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
-class MyTeamPerformanceWidget extends TableWidget
+final class MyTeamPerformanceWidget extends TableWidget
 {
     protected static ?string $heading = '👥 Performa Tim Saya'; // <-- static
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasRole('kepala_bagian');
+    }
 
     public function table(Table $table): Table
     {
         $user = auth()->user();
         $employee = Employee::where('user_id', $user->id)->first();
 
-        if (!$employee || !$user->hasRole('kepala_bagian')) {
+        if (! $employee || ! $user->hasRole('kepala_bagian')) {
             return $table
                 ->query(PerformanceReview::query()->whereRaw('1=0'))
                 ->emptyStateHeading('Anda bukan Kepala Bagian')
@@ -71,11 +76,11 @@ class MyTeamPerformanceWidget extends TableWidget
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'Outstanding' => 'success',
-                        'Excellent'   => 'info',
-                        'Good'        => 'warning',
-                        'Fair'        => 'gray',
-                        'Poor'        => 'danger',
-                        default       => 'gray',
+                        'Excellent' => 'info',
+                        'Good' => 'warning',
+                        'Fair' => 'gray',
+                        'Poor' => 'danger',
+                        default => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('status')
@@ -89,10 +94,5 @@ class MyTeamPerformanceWidget extends TableWidget
             ->poll('30s')
             ->emptyStateHeading('Belum ada penilaian')
             ->emptyStateDescription('Tim Anda belum dinilai pada periode ini.');
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasRole('kepala_bagian');
     }
 }

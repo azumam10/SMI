@@ -154,24 +154,24 @@ final class LeaveRequestForm
                             ->mutateRelationshipDataBeforeCreateUsing(fn (array $data): array => self::processDocumentMetadata($data))
                             ->mutateRelationshipDataBeforeSaveUsing(fn (array $data): array => self::processDocumentMetadata($data))
                             ->schema([
-                              FileUpload::make('file')
-                                  ->label('File')
-                                  ->required()
-                                  ->disk('public')
-                                  ->directory('leave-documents')
-                                  ->visibility('public')
-                                  ->openable()
-                                  ->downloadable()
-                                  ->previewable(true)
-                                  ->maxSize(10240)
-                                  ->acceptedFileTypes([
-                                      'application/pdf',
-                                      'image/jpeg',
-                                      'image/png',
-                                      'image/jpg',
-                                  ])
-                                  ->storeFileNamesIn('original_name')
-                                  ->helperText('Format: PDF, JPG, PNG. Maks 5MB.'),
+                                FileUpload::make('file')
+                                    ->label('File')
+                                    ->required()
+                                    ->disk('public')
+                                    ->directory('leave-documents')
+                                    ->visibility('public')
+                                    ->openable()
+                                    ->downloadable()
+                                    ->previewable(true)
+                                    ->maxSize(10240)
+                                    ->acceptedFileTypes([
+                                        'application/pdf',
+                                        'image/jpeg',
+                                        'image/png',
+                                        'image/jpg',
+                                    ])
+                                    ->storeFileNamesIn('original_name')
+                                    ->helperText('Format: PDF, JPG, PNG. Maks 5MB.'),
                             ])
                             ->columns(1)
                             ->defaultItems(0)

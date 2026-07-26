@@ -13,6 +13,11 @@ final class LeaveStatsWidget extends StatsOverviewWidget
 {
     protected ?string $pollingInterval = '30s'; // <-- hapus static
 
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['super_admin', 'hrd']);
+    }
+
     protected function getStats(): array
     {
         $year = now()->year;
@@ -55,25 +60,20 @@ final class LeaveStatsWidget extends StatsOverviewWidget
                 ->icon('heroicon-o-calendar-days')
                 ->color('success'),
 
-            Stat::make('Total Cuti Terpakai', number_format($totalApprovedDays, 1) . ' Hari')
+            Stat::make('Total Cuti Terpakai', number_format($totalApprovedDays, 1).' Hari')
                 ->description("Seluruh karyawan tahun {$year}")
                 ->icon('heroicon-o-chart-bar')
                 ->color('info'),
 
-            Stat::make('Rata-rata Cuti', number_format($avgLeavePerEmployee, 1) . ' Hari')
+            Stat::make('Rata-rata Cuti', number_format($avgLeavePerEmployee, 1).' Hari')
                 ->description("Per karyawan aktif tahun {$year}")
                 ->icon('heroicon-o-user-group')
                 ->color('primary'),
 
-            Stat::make('Sisa Kuota', number_format($remainingQuota, 1) . ' Hari')
-                ->description("Rata-rata sisa cuti per karyawan")
+            Stat::make('Sisa Kuota', number_format($remainingQuota, 1).' Hari')
+                ->description('Rata-rata sisa cuti per karyawan')
                 ->icon('heroicon-o-check-badge')
                 ->color('success'),
         ];
-    }
-
-    public static function canView(): bool
-    {
-        return auth()->user()->hasAnyRole(['super_admin', 'hrd']);
     }
 }

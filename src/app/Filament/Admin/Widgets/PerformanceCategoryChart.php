@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\PerformanceReview;
 use Filament\Widgets\ChartWidget;
 
-class PerformanceCategoryChart extends ChartWidget
+final class PerformanceCategoryChart extends ChartWidget
 {
     protected ?string $heading = 'Distribusi Kategori Penilaian'; // <-- hapus static
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected function getData(): array
     {
@@ -27,10 +29,10 @@ class PerformanceCategoryChart extends ChartWidget
         $labels = ['Outstanding', 'Excellent', 'Good', 'Fair', 'Poor'];
         $colors = [
             'Outstanding' => '#22c55e',
-            'Excellent'   => '#3b82f6',
-            'Good'        => '#eab308',
-            'Fair'        => '#6b7280',
-            'Poor'        => '#ef4444',
+            'Excellent' => '#3b82f6',
+            'Good' => '#eab308',
+            'Fair' => '#6b7280',
+            'Poor' => '#ef4444',
         ];
 
         $data = array_map(fn ($label) => $categories[$label] ?? 0, $labels);
