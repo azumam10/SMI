@@ -7,6 +7,7 @@ namespace App\Filament\Admin\Pages;
 use App\Filament\Admin\Widgets\AveragePerformance;
 use App\Filament\Admin\Widgets\BottomPerformanceTable;
 use App\Filament\Admin\Widgets\ContractEndingSoon;
+use App\Filament\Admin\Widgets\DatabaseMonitor;
 use App\Filament\Admin\Widgets\EmployeeLeaveQuotaWidget;
 use App\Filament\Admin\Widgets\EmployeesBySectionChart;
 use App\Filament\Admin\Widgets\EmployeesOnLeaveToday;
@@ -33,25 +34,25 @@ final class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            
+            EmployeesBySectionChart::class,
+            SectionEmployeeTable::class,
             LeaveStatsWidget::class,
             LeaveMonthlyChart::class,
             RecentLeaveRequests::class,
             EmployeesOnLeaveToday::class,
-            ContractEndingSoon::class,
-            EmployeesBySectionChart::class,
-            SectionEmployeeTable::class,
-            LatestAccessLogs::class,
+            LowLeaveQuotaWidget::class,
+            EmployeeLeaveQuotaWidget::class,
+            PendingApprovalWidget::class,
+            MyTeamPerformanceWidget::class,
             AveragePerformance::class,
             PerformanceCategoryChart::class,
             TopPerformanceTable::class,
             BottomPerformanceTable::class,
             SectionPerformanceChart::class,
-            MyTeamPerformanceWidget::class,
-            PendingApprovalWidget::class,
-            EmployeeLeaveQuotaWidget::class,
-            LowLeaveQuotaWidget::class,
-
+            ContractEndingSoon::class,
+            DatabaseMonitor::class,
+            LatestAccessLogs::class,
+            
         ];
     }
 }

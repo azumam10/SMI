@@ -15,10 +15,14 @@ final class DocumentFile extends Model
 
     protected $fillable = [
         'employee_document_id',
-        'original_name', 'stored_name',
-        'disk', 'path',
-        'mime_type', 'size',
-        'sort_order', 'uploaded_by',
+        'original_name',
+        'stored_name',
+        'disk',
+        'path',
+        'mime_type',
+        'size',
+        'sort_order',
+        'uploaded_by',
     ];
 
     protected $casts = [
@@ -31,7 +35,18 @@ final class DocumentFile extends Model
         return $this->belongsTo(EmployeeDocument::class, 'employee_document_id');
     }
 
+    /**
+     * URL untuk mengunduh file via Controller
+     */
     public function getDownloadUrlAttribute(): string
+    {
+        return route('filament.document-file.download', $this->id);
+    }
+
+    /**
+     * URL publik untuk preview file (gambar)
+     */
+    public function getPublicUrlAttribute(): string
     {
         return Storage::disk($this->disk)->url($this->path);
     }
@@ -80,9 +95,9 @@ final class DocumentFile extends Model
             if (
                 filled($file->disk) &&
                 filled($file->path) &&
-                \Storage::disk($file->disk)->exists($file->path)
+                Storage::disk($file->disk)->exists($file->path)
             ) {
-                \Storage::disk($file->disk)->delete($file->path);
+                Storage::disk($file->disk)->delete($file->path);
             }
         });
     }

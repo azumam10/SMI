@@ -237,18 +237,19 @@ final class DocumentsRelationManager extends RelationManager
         int $startOrder = 0
     ): void {
         foreach ($filePaths as $index => $path) {
-            // path sudah disimpan oleh FileUpload ke disk 'public'
             $fullPath = storage_path('app/public/'.$path);
-            $mimeType = file_exists($fullPath)
-                ? mime_content_type($fullPath)
-                : 'application/octet-stream';
-            $size = file_exists($fullPath) ? filesize($fullPath) : 0;
-            $originalName = basename($path);
+            $fileExists = file_exists($fullPath);
+
+            $mimeType = $fileExists ? mime_content_type($fullPath) : 'application/octet-stream';
+            $size = $fileExists ? filesize($fullPath) : 0;
+
+            // Ambil nama file (jika disimpan dalam folder, ambil nama akhirnya)
+            $storedName = basename($path);
 
             DocumentFile::create([
                 'employee_document_id' => $document->id,
-                'original_name' => $originalName,
-                'stored_name' => basename($path),
+                'original_name' => $storedName, // Atau sesuaikan dengan state original_file_names Filament
+                'stored_name' => $storedName,
                 'disk' => 'public',
                 'path' => $path,
                 'mime_type' => $mimeType,

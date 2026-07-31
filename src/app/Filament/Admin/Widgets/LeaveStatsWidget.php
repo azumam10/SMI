@@ -11,7 +11,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 final class LeaveStatsWidget extends StatsOverviewWidget
 {
-    protected ?string $pollingInterval = '30s'; // <-- hapus static
+    protected ?string $pollingInterval = '30s';
 
     public static function canView(): bool
     {
@@ -33,7 +33,7 @@ final class LeaveStatsWidget extends StatsOverviewWidget
             ->count();
 
         // ── 3. Total Hari Cuti Disetujui (Tahun Ini) ─────────────
-        $totalApprovedDays = (float) LeaveRequest::query() // <-- cast ke float
+        $totalApprovedDays = (float) LeaveRequest::query()
             ->where('status', 'hrd_approved')
             ->whereYear('start_date', $year)
             ->sum('total_days');
@@ -45,35 +45,45 @@ final class LeaveStatsWidget extends StatsOverviewWidget
             : 0;
 
         // ── 5. Sisa Kuota Cuti (asumsi 12 hari/tahun) ───────────
-        $quotaPerYear = 12; // bisa dari setting
+        $quotaPerYear = 12;
         $remainingQuota = max(0, $quotaPerYear - $avgLeavePerEmployee);
 
         return [
             Stat::make('Menunggu Approval', $pending)
-                ->description('Perlu diproses HRD')
+                ->description($pending > 0 ? 'Perlu segera diproses HRD' : 'Tidak ada antrean cuti')
+                ->descriptionIcon($pending > 0 ? 'heroicon-m-exclamation-circle' : 'heroicon-m-check-circle')
                 ->icon('heroicon-o-clock')
-                ->color('warning')
-                ->extraAttributes(['class' => 'cursor-pointer']),
+                ->color($pending > 0 ? 'warning' : 'success')
+                ->chart([0, 2, $pending + 1, $pending]) // Menampilkan grafik mini/sparkline
+                ->extraAttributes([
+                    'class' => 'cursor-pointer hover:ring-2 hover:ring-warning-500 transition-all duration-300',
+                ]),
 
             Stat::make('Sedang Cuti', $onLeaveToday)
-                ->description('Karyawan cuti hari ini')
+                ->description('Karyawan yang libur hari ini')
+                ->descriptionIcon('heroicon-m-calendar-days')
                 ->icon('heroicon-o-calendar-days')
-                ->color('success'),
+                ->color('info')
+                ->chart([$onLeaveToday > 0 ? 1 : 0, $onLeaveToday + 2, $onLeaveToday]), // Efek grafik fluktuatif
 
             Stat::make('Total Cuti Terpakai', number_format($totalApprovedDays, 1).' Hari')
-                ->description("Seluruh karyawan tahun {$year}")
+                ->description("Seluruh karyawan di tahun {$year}")
+                ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->icon('heroicon-o-chart-bar')
-                ->color('info'),
+                ->color('primary')
+                ->chart([0, $totalApprovedDays * 0.3, $totalApprovedDays * 0.7, $totalApprovedDays]), // Grafik menanjak
 
             Stat::make('Rata-rata Cuti', number_format($avgLeavePerEmployee, 1).' Hari')
                 ->description("Per karyawan aktif tahun {$year}")
                 ->icon('heroicon-o-user-group')
-                ->color('primary'),
+                ->color('gray'),
 
             Stat::make('Sisa Kuota', number_format($remainingQuota, 1).' Hari')
                 ->description('Rata-rata sisa cuti per karyawan')
+                ->descriptionIcon($remainingQuota <= 3 ? 'heroicon-m-exclamation-triangle' : 'heroicon-m-shield-check')
                 ->icon('heroicon-o-check-badge')
-                ->color('success'),
+                ->color($remainingQuota <= 3 ? 'danger' : 'success') // Jika sisa kuota menipis, warna jadi merah
+                ->chart([$quotaPerYear, $quotaPerYear * 0.7, $remainingQuota + 2, $remainingQuota]), // Grafik menurun
         ];
     }
 }

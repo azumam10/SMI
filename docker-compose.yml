@@ -137,6 +137,34 @@ services:
       timeout: 5s
       retries: 3
 
+  # ──────────────────────────────────────────────────────────
+  # Redis Queue Worker
+  # ──────────────────────────────────────────────────────────
+  umamis_queue:
+    build: ./php
+    image: umamis_php:latest
+    container_name: umamis_queue
+    hostname: "umamis_queue"
+    restart: unless-stopped
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    environment:
+      DB_HOST: umamis_db_master
+      DB_PORT: 3306
+      DB_REPLICA_HOST: umamis_db_replica
+      DB_REPLICA_PORT: 3306
+      REDIS_HOST: umamis_redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    networks:
+      - umamis_net
+    depends_on:
+      umamis_db_master:
+        condition: service_healthy
+      umamis_redis:
+        condition: service_healthy
+
 networks:
   umamis_net:
     driver: bridge

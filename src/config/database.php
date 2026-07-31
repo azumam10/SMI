@@ -17,41 +17,28 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
-       'mysql' => [
-    'driver' => 'mysql',
-    'read' => [
-        'host' => [env('DB_REPLICA_HOST', 'umamis_db_replica')],
-    ],
-    'write' => [
-        'host' => [env('DB_HOST', 'umamis_db_master')],
-    ],
-    'sticky' => true,
-    'port' => env('DB_PORT', '3306'),
-    'database' => env('DB_DATABASE', 'umamis_hris'),
-    'username' => env('DB_USERNAME', 'djambred'),
-    'password' => env('DB_PASSWORD', ''),
-    'charset' => 'utf8mb4',
-    'collation' => 'utf8mb4_unicode_ci',
-    'prefix' => '',
-    'prefix_indexes' => true,
-    'strict' => true,
-    'engine' => 'InnoDB',
-],
+        'mysql' => [
+            'driver' => 'mysql',
+            'read' => [
+                'host' => [env('DB_REPLICA_HOST', 'umamis_db_replica')],
+            ],
+            'write' => [
+                'host' => [env('DB_HOST', 'umamis_db_master')],
+            ],
+            'sticky' => true,
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'umamis_hris'),
+            'username' => env('DB_USERNAME', 'djambred'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => 'InnoDB',
+        ],
 
-        // ── Koneksi replica (tidak dipakai, dikomentari) ──────────
-        // 'mysql_replica' => [
-        //     'driver'    => 'mysql',
-        //     'host'      => env('DB_REPLICA_HOST', 'umamis_db_replica'),
-        //     'port'      => env('DB_REPLICA_PORT', '3306'),
-        //     'database'  => env('DB_DATABASE', 'umamis_hris'),
-        //     'username'  => env('DB_USERNAME', 'djambred'),
-        //     'password'  => env('DB_PASSWORD', ''),
-        //     'charset'   => 'utf8mb4',
-        //     'collation' => 'utf8mb4_unicode_ci',
-        //     'strict'    => true,
-        //     'engine'    => 'InnoDB',
-        // ],
-
+       
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),

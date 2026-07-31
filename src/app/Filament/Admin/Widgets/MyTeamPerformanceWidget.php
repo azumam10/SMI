@@ -6,15 +6,20 @@ namespace App\Filament\Admin\Widgets;
 
 use App\Models\Employee;
 use App\Models\PerformanceReview;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 
 final class MyTeamPerformanceWidget extends TableWidget
 {
-    protected static ?string $heading = '👥 Performa Tim Saya'; // <-- static
+    protected static ?string $heading = 'Evaluasi & Performa Tim';
+
+    protected ?string $description = 'Peringkat dan capaian kinerja anggota tim periode berjalan';
 
     protected int|string|array $columnSpan = 'full';
+
+    protected ?string $pollingInterval = '30s';
 
     public static function canView(): bool
     {
@@ -29,8 +34,9 @@ final class MyTeamPerformanceWidget extends TableWidget
         if (! $employee || ! $user->hasRole('kepala_bagian')) {
             return $table
                 ->query(PerformanceReview::query()->whereRaw('1=0'))
-                ->emptyStateHeading('Anda bukan Kepala Bagian')
-                ->emptyStateDescription('Widget ini hanya untuk Kepala Bagian.');
+                ->emptyStateHeading('Akses Khusus Kepala Bagian')
+                ->emptyStateDescription('Widget ini hanya dapat diakses oleh Akun Kepala Bagian.')
+                ->emptyStateIcon('heroicon-o-lock-closed');
         }
 
         $semester = now()->month <= 6 ? 1 : 2;
@@ -41,8 +47,9 @@ final class MyTeamPerformanceWidget extends TableWidget
         if ($subordinateIds->isEmpty()) {
             return $table
                 ->query(PerformanceReview::query()->whereRaw('1=0'))
-                ->emptyStateHeading('Tidak ada bawahan')
-                ->emptyStateDescription('Anda belum memiliki anggota tim.');
+                ->emptyStateHeading('Belum Ada Anggota Tim')
+                ->emptyStateDescription('Anda belum memiliki bawahan langsung yang terdaftar di sistem.')
+                ->emptyStateIcon('heroicon-o-user-group');
         }
 
         return $table
@@ -55,44 +62,77 @@ final class MyTeamPerformanceWidget extends TableWidget
                     ->with('employee')
                     ->orderByDesc('final_score')
             )
+            ->striped()
+            ->defaultPaginationPageOption(5)
+            ->paginated([5, 10, 25])
             ->columns([
-                Tables\Columns\TextColumn::make('employee.name')
-                    ->label('Nama')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('no')
+                    ->label('No')
+                    ->rowIndex()
+                    ->width('50px')
+                    ->alignCenter(),
 
-                Tables\Columns\TextColumn::make('employee.id_number')
-                    ->label('NIK')
+                Tables\Columns\TextColumn::make('employee.name')
+                    ->label('Anggota Tim')
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable()
+                    ->weight(FontWeight::Medium)
+                    ->icon('heroicon-m-user-circle')
+                    ->iconColor('primary')
+                    ->description(fn (PerformanceReview $record) => "NIK: " . ($record->employee->id_number ?? '-')),
+
+                Tables\Columns\TextColumn::make('semester')
+                    ->label('Periode')
+                    ->formatStateUsing(fn ($record) => "Sem {$record->semester} ({$record->year})")
+                    ->badge()
+                    ->color('gray')
+                    ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('final_score')
-                    ->label('Nilai')
+                    ->label('Nilai Akhir')
                     ->numeric(decimalPlaces: 2)
-                    ->sortable(),
+                    ->sortable()
+                    ->alignCenter()
+                    ->weight(FontWeight::Bold)
+                    ->color(fn ($state) => match (true) {
+                        $state >= 85 => 'success',
+                        $state >= 70 => 'info',
+                        $state >= 55 => 'warning',
+                        default => 'danger',
+                    }),
 
                 Tables\Columns\TextColumn::make('category')
-                    ->label('Kategori')
+                    ->label('Kategori Kinerja')
                     ->badge()
+                    ->alignCenter()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Outstanding' => 'heroicon-m-sparkles',
+                        'Excellent'   => 'heroicon-m-star',
+                        'Good'        => 'heroicon-m-hand-thumb-up',
+                        'Fair'        => 'heroicon-m-minus-circle',
+                        'Poor'        => 'heroicon-m-exclamation-triangle',
+                        default       => 'heroicon-m-question-mark-circle',
+                    })
                     ->color(fn (string $state): string => match ($state) {
                         'Outstanding' => 'success',
-                        'Excellent' => 'info',
-                        'Good' => 'warning',
-                        'Fair' => 'gray',
-                        'Poor' => 'danger',
-                        default => 'gray',
+                        'Excellent'   => 'info',
+                        'Good'        => 'warning',
+                        'Fair'        => 'gray',
+                        'Poor'        => 'danger',
+                        default       => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
+                    ->label('Status Evaluasi')
                     ->badge()
+                    ->alignCenter()
                     ->color(fn ($record) => $record->getStatusBadgeColor())
                     ->formatStateUsing(fn ($record) => $record->getStatusLabel())
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('final_score', 'desc')
-            ->poll('30s')
-            ->emptyStateHeading('Belum ada penilaian')
-            ->emptyStateDescription('Tim Anda belum dinilai pada periode ini.');
+            ->emptyStateHeading('Belum Ada Penilaian')
+            ->emptyStateDescription('Hasil evaluasi kinerja tim Anda untuk semester ini belum tersedia atau belum disetujui.')
+            ->emptyStateIcon('heroicon-o-chart-bar-square');
     }
 }

@@ -6,15 +6,15 @@ namespace App\Providers\Filament;
 
 use App\Filament\Admin\Pages\Dashboard;
 use App\Filament\Admin\Resources\Users\UserResource;
+use App\Filament\Admin\Widgets\DatabaseMonitor;
 use App\Filament\Admin\Widgets\LatestAccessLogs;
-use App\Models\User;
 use Awcodes\Overlook\OverlookPlugin;
 use Awcodes\Overlook\Widgets\OverlookWidget;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
 use Caresome\FilamentAuthDesigner\Enums\MediaPosition;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
-use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
+use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin; // Dinonaktifkan sementara, lihat catatan di bagian plugins()
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -26,6 +26,7 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color as FilamentColor;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -60,15 +61,21 @@ final class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::adaptive(
                     lightColor: FilamentColor::Blue,
-                    darkColor: FilamentColor::Sky
+                    darkColor: FilamentColor::Sky,
                 ),
             ])
+            ->renderHook(
+                PanelsRenderHook::FOOTER,
+                fn () => view('filament.admin.components.db-status-footer'),
+            )
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
+                //
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
+                DatabaseMonitor::class,
                 OverlookWidget::class,
                 LatestAccessLogs::class,
             ])
@@ -83,10 +90,13 @@ final class AdminPanelProvider extends PanelProvider
             ->plugins([
                 AuthDesignerPlugin::make()
                     ->login(fn ($config) => $config
-                        ->media('https://images.pexels.com/photos/466685/pexels-photo-466685.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2')
+                        // Ganti dengan logo/gambar perusahaan.
+                        // Taruh file gambarnya di: public/images/login-bg.jpg
+                        // Lalu ganti path di bawah ini jadi: asset('images/login-bg.jpg')
+                        ->media(asset('images/imageslogin-bg.jpg'))
                         ->mediaPosition(MediaPosition::Left)
                         ->mediaSize('70%')
-                        ->blur(1)
+                        ->blur(1),
                     )
                     ->themeToggle('90%', '50%'),
                 BreezyCore::make()
@@ -124,10 +134,17 @@ final class AdminPanelProvider extends PanelProvider
                     ->navigationSort(2)
                     ->navigationIcon(Heroicon::ShieldCheck),
                 FilamentLoggerPlugin::make(),
+
+                // Fitur "quick login / pilih akun" untuk development.
+                // Nonaktif sementara untuk tampilan production yang lebih rapi & profesional.
+                // Untuk mengaktifkan kembali: hapus komen use statement di atas
+                // dan hapus komen blok di bawah ini.
+                
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->switchable(true)
-                    ->users(fn () => User::pluck('email', 'name')->toArray()),
+                    ->users(fn () => \App\Models\User::pluck('email', 'name')->toArray()),
+
                 FilamentApexChartsPlugin::make(),
             ])
             ->middleware([

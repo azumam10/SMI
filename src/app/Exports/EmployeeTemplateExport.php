@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-final class EmployeeTemplateExport implements FromArray, WithHeadings, WithStyles, WithColumnWidths, WithEvents
+final class EmployeeTemplateExport implements FromArray, WithColumnWidths, WithEvents, WithHeadings, WithStyles
 {
     // PENTING: heading di sini yang jadi acuan. Maatwebsite otomatis
     // ubah "Nama Lengkap" -> nama_lengkap, "NIK Atasan" -> nik_atasan, dst

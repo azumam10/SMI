@@ -18,6 +18,7 @@
         "charrafimed/global-search-modal": "^5.0",
         "dutchcodingcompany/filament-developer-logins": "^2.1",
         "filament/filament": "^5.2",
+        "filament/infolists": "^5.6",
         "jacobtims/filament-logger": "^1.1",
         "jeffgreco13/filament-breezy": "^3.1",
         "laravel/framework": "^13.0",

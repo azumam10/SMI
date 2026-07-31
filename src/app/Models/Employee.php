@@ -109,6 +109,69 @@ final class Employee extends Model
         return $this->hasMany(EmployeeDocument::class);
     }
 
+    // ─── Auto Create User ────────────────────────────────────────────
+
+    /**
+     * Generate username dari nama (nama depan + tengah)
+     */
+    public function generateEmail(): string
+    {
+        $parts = explode(' ', trim($this->name));
+        $firstName = mb_strtolower($parts[0] ?? 'user');
+        $middleName = mb_strtolower($parts[1] ?? '');
+
+        $base = $middleName ? $firstName.$middleName : $firstName;
+        $base = preg_replace('/[^a-z0-9]/', '', $base);
+
+        // Cek duplikat, tambahkan angka increment kalau sudah ada
+        $local = $base;
+        $counter = 1;
+        while (User::where('email', $local.'@smi.local')->exists()) {
+            $local = $base.$counter;
+            $counter++;
+        }
+
+        return $local.'@smi.local';
+    }
+
+    /**
+     * Buat user untuk employee ini
+     */
+    public function createUser(): User
+    {
+        if ($this->user_id) {
+            return $this->user;
+        }
+
+        $email = $this->generateEmail();
+        $password = $this->tanggal_lahir ? $this->tanggal_lahir->format('dmY') : '01012000';
+
+        $user = User::create([
+            'name' => $this->name,
+            'email' => $email,
+            'password' => bcrypt($password),
+        ]);
+
+        $this->assignRoleToUser($user);
+
+        $this->user_id = $user->id;
+        $this->save();
+
+        return $user;
+    }
+
+    /**
+     * Cek dan buat user jika belum ada
+     */
+    public function createUserIfNeeded(): ?User
+    {
+        if ($this->user_id) {
+            return $this->user;
+        }
+
+        return $this->createUser();
+    }
+
     // __ Performance Rivew ________________________________________________
     public function performanceReviews(): HasMany
     {
@@ -179,11 +242,12 @@ final class Employee extends Model
         return $query->where('supervisor_id', $supervisorId);
     }
 
-    // ── Boot: auto-set generation berdasarkan tahun lahir ─────────────
+    // ── Boot: auto-set generation dan auto-create user ─────────────
     protected static function boot(): void
     {
         parent::boot();
 
+        // Auto-set generation dari tanggal lahir
         self::saving(function (Employee $employee) {
             if ($employee->isDirty('tanggal_lahir') && $employee->tanggal_lahir) {
                 $employee->generation = static::resolveGeneration(
@@ -191,5 +255,41 @@ final class Employee extends Model
                 );
             }
         });
+
+        // Auto-create user setelah employee dibuat
+        self::created(function (Employee $employee) {
+            // Hanya jika employee memiliki tanggal lahir dan posisi
+            if ($employee->tanggal_lahir && $employee->position_id) {
+                $employee->createUserIfNeeded();
+            }
+        });
+    }
+
+    /**
+     * Assign role berdasarkan position
+     */
+    protected function assignRoleToUser(User $user): void
+    {
+        $position = $this->position;
+
+        if (! $position) {
+            $user->assignRole('karyawan');
+
+            return;
+        }
+
+        // Mapping role berdasarkan position code atau level
+        $roleName = match (true) {
+            $position->code === 'HRGA' => 'hrd',
+            $position->level === 'Kepala Bagian' => 'kepala_bagian',
+            default => 'karyawan',
+        };
+
+        // Pastikan role ada di database
+        if (! \Spatie\Permission\Models\Role::where('name', $roleName)->exists()) {
+            \Spatie\Permission\Models\Role::create(['name' => $roleName]);
+        }
+
+        $user->assignRole($roleName);
     }
 }

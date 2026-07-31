@@ -4,3 +4,8 @@
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/jeffgreco13/filament-breezy/resources/**/*';
 @source '../../../../vendor/awcodes/overlook/resources/**/*.blade.php';
+
+.dark .fi-body {
+    background-color: rgba(37, 99, 235, 0.25) !important;
+    backdrop-filter: blur(8px); /* opsional, efek kaca */
+}

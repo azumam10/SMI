@@ -1,5 +1,4 @@
 {{-- resources/views/filament/modals/document-files.blade.php --}}
-{{-- Dipanggil dari DocumentsRelationManager action 'lihat_file' --}}
 
 <div class="space-y-3 py-2">
     @forelse ($document->files as $file)
@@ -24,8 +23,8 @@
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
                         {{ $file->formatted_size }}
-                        @if ($file->uploaded_by)
-                            · Diupload oleh {{ $file->uploaded_by }}
+                        @if ($file->uploader_name !== '-')
+                            · Diupload oleh {{ $file->uploader_name }}
                         @endif
 
                         · {{ $file->created_at->format('d/m/Y H:i') }}
@@ -37,7 +36,7 @@
             <div class="ml-3 flex flex-shrink-0 items-center gap-2">
                 @if ($file->isImage())
                     <a
-                        href="{{ Storage::disk($file->disk)->url($file->path) }}"
+                        href="{{ $file->public_url }}"
                         target="_blank"
                         class="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
                     >
@@ -47,8 +46,7 @@
                 @endif
 
                 <a
-                    href="{{ Storage::disk($file->disk)->url($file->path) }}"
-                    download="{{ $file->original_name }}"
+                    href="{{ route('filament.document-file.download', $file->id) }}"
                     class="inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:text-gray-900 dark:border-gray-600 dark:text-gray-400 dark:hover:text-white"
                 >
                     <x-heroicon-m-arrow-down-tray class="h-4 w-4" />

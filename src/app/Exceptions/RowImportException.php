@@ -6,7 +6,7 @@ namespace App\Exceptions;
 
 use RuntimeException;
 
-class RowImportException extends RuntimeException
+final class RowImportException extends RuntimeException
 {
     //
 }
