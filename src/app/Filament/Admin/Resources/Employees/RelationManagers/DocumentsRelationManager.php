@@ -259,4 +259,11 @@ final class DocumentsRelationManager extends RelationManager
             ]);
         }
     }
+    public static function canViewForRecord($ownerRecord, string $pageClass): bool
+{
+    return auth()->user()->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]);
+}
 }

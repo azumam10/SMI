@@ -89,4 +89,11 @@ final class LatestAccessLogs extends BaseWidget
             $customs,
         );
     }
+
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+    ]) ?? false;
+}
 }

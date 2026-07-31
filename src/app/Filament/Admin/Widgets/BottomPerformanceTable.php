@@ -65,4 +65,11 @@ final class BottomPerformanceTable extends TableWidget
             ->defaultSort('final_score', 'asc')
             ->poll('10s');
     }
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

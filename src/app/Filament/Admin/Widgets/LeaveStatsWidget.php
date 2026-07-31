@@ -86,4 +86,6 @@ final class LeaveStatsWidget extends StatsOverviewWidget
                 ->chart([$quotaPerYear, $quotaPerYear * 0.7, $remainingQuota + 2, $remainingQuota]), // Grafik menurun
         ];
     }
+
+    
 }

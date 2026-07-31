@@ -107,4 +107,12 @@ final class SectionEmployeeTable extends BaseWidget
             ->emptyStateDescription('Tidak ada data seksi / unit kerja yang terdaftar di sistem.')
             ->emptyStateIcon('heroicon-o-rectangle-group');
     }
+
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

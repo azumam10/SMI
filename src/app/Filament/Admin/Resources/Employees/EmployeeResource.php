@@ -85,4 +85,47 @@ final class EmployeeResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+    public static function getEloquentQuery(): Builder
+{
+    $query = parent::getEloquentQuery();
+
+    $user = auth()->user();
+
+    if (! $user) {
+        return $query;
+    }
+
+    // SUPER ADMIN & HRD
+    if (
+        $user->hasRole('super_admin') ||
+        $user->hasRole('hrd')
+    ) {
+        return $query;
+    }
+
+    $employee = $user->employee;
+
+    if (! $employee) {
+        return $query->whereRaw('1 = 0');
+    }
+
+    // KEPALA BAGIAN
+    if ($user->hasRole('kepala_bagian')) {
+
+        return $query->where(function ($q) use ($employee) {
+
+            // dirinya sendiri
+            $q->where('id', $employee->id)
+
+            // bawahan langsung
+            ->orWhere('supervisor_id', $employee->id);
+
+        });
+
+    }
+
+    // KARYAWAN
+    return $query->where('id', $employee->id);
+}
 }

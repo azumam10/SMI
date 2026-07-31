@@ -124,4 +124,12 @@ final class LeaveMonthlyChart extends ChartWidget
             ],
         ];
     }
+
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

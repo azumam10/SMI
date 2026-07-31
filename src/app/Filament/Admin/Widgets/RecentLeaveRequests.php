@@ -133,4 +133,12 @@ final class RecentLeaveRequests extends TableWidget
 
         return $query->where('employee_id', $employee->id);
     }
+
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

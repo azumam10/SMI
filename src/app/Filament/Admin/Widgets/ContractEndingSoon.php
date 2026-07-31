@@ -83,4 +83,12 @@ final class ContractEndingSoon extends TableWidget
 
             ->orderBy('contract_end_date');
     }
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+        'kepala_bagian',
+    ]) ?? false;
+}
 }

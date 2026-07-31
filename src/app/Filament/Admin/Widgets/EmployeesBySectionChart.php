@@ -91,4 +91,12 @@ final class EmployeesBySectionChart extends ChartWidget
             ],
         ];
     }
+
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

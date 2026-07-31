@@ -72,4 +72,11 @@ final class AveragePerformance extends BaseWidget
                 ]),
         ];
     }
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+        'hrd',
+    ]) ?? false;
+}
 }

@@ -40,7 +40,7 @@ final class Employee extends Model
     public static function resolveGeneration(int $year): string
     {
         return match (true) {
-            $year >= 1997 => 'Gen Z',
+            $year >= 1999 => 'Gen Z',
             $year >= 1981 => 'Milenial',
             $year >= 1965 => 'Gen X',
             default => 'Baby Boomers',
@@ -126,12 +126,12 @@ final class Employee extends Model
         // Cek duplikat, tambahkan angka increment kalau sudah ada
         $local = $base;
         $counter = 1;
-        while (User::where('email', $local.'@smi.local')->exists()) {
+        while (User::where('email', $local.'@smi.com')->exists()) {
             $local = $base.$counter;
             $counter++;
         }
 
-        return $local.'@smi.local';
+        return $local.'@smi.com';
     }
 
     /**

@@ -23,7 +23,7 @@ final class MyTeamPerformanceWidget extends TableWidget
 
     public static function canView(): bool
     {
-        return auth()->user()->hasRole('kepala_bagian');
+        return auth()->user()->hasRole('kepala_bagian','super_admin');
     }
 
     public function table(Table $table): Table

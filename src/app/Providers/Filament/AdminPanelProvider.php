@@ -14,7 +14,7 @@ use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Caresome\FilamentAuthDesigner\AuthDesignerPlugin;
 use Caresome\FilamentAuthDesigner\Enums\MediaPosition;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
-use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin; // Dinonaktifkan sementara, lihat catatan di bagian plugins()
+// use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin; // Dinonaktifkan sementara, lihat catatan di bagian plugins()
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -140,12 +140,12 @@ final class AdminPanelProvider extends PanelProvider
                 // Untuk mengaktifkan kembali: hapus komen use statement di atas
                 // dan hapus komen blok di bawah ini.
                 
-                FilamentDeveloperLoginsPlugin::make()
-                    ->enabled(app()->environment('local'))
-                    ->switchable(true)
-                    ->users(fn () => \App\Models\User::pluck('email', 'name')->toArray()),
+                // FilamentDeveloperLoginsPlugin::make()
+                //     ->enabled(app()->environment('local'))
+                //     ->switchable(true)
+                //     ->users(fn () => \App\Models\User::pluck('email', 'name')->toArray()),
 
-                FilamentApexChartsPlugin::make(),
+                // FilamentApexChartsPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

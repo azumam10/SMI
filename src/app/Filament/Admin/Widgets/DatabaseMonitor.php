@@ -25,4 +25,10 @@ final class DatabaseMonitor extends Widget
 
         ];
     }
+    public static function canView(): bool
+{
+    return auth()->user()?->hasAnyRole([
+        'super_admin',
+    ]) ?? false;
+}
 }
